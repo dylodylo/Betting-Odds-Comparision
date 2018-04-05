@@ -1,8 +1,9 @@
 from typing import NamedTuple
 from bs4 import BeautifulSoup
 import requests
+import database
 
-class League(object):
+class League_Fortuna(object):
     league_id : int
     league_name: str
     league_site: str
@@ -48,15 +49,16 @@ def load_leagues():
             i = i+1
 
         print(sports_container[0].text)
-        for a in sports_container[3].find_all('a', href=True, text=True):
-            link_text = a['href']
-            print('Link:' + link_text)
-            a_league_site = 'https://www.efortuna.pl' + link_text
-            a_league_id = counter
-            a_league_name = "league " + str(counter)
-            a = League_Fortuna(a_league_id, a_league_name, a_league_site);
-            football_leagues.append(a)
-            counter = counter + 1
+        for x in sports_container:
+            for a in x.find_all('a', href=True, text=True):
+                link_text = a['href']
+                print('Link:' + link_text)
+                a_league_site = 'https://www.efortuna.pl' + link_text
+                a_league_id = counter
+                a_league_name = "league " + str(counter)
+                a = League_Fortuna(a_league_id, a_league_name, a_league_site);
+                football_leagues.append(a)
+                counter = counter + 1
         b = 0
         while b < len(football_leagues):
             football_leagues[b].load_league()
@@ -73,6 +75,15 @@ class Match_Odds(NamedTuple):
     odd_1X : float
     odd_2X : float
     odd_12 : float
+
+def choose_team(team_name):
+    return {
+
+        'W.Plock': "Wisła Płock",
+        "Zag.Lubin": "Zagłębie Lubin",
+        "Lechia G.": "Lechia Gdańsk",
+        "Arka G.": "Arka Gdynia"
+    }.get(team_name, team_name)
 
 #ładowanie kursów meczów z danej ligi (podstrony)
     #match containers przechowuje wszystkie mecze (zespoły), a odd container wszystkie kursy
@@ -115,15 +126,16 @@ def load_matches_odds( match_containers, odd_container ):
                 odd_12 = win_6_odd.a.text
             except AttributeError:
                 odd_12 = '0'
-            matches[counter].match_id = counter
-            matches[counter].team1 = match.a.text[:dash_position - 1]
-            matches[counter].team2 = match.a.text[dash_position + 2:]
+            matches[counter].match_id = int(match_containers[counter]['data-id'])
+            matches[counter].team1 = choose_team(str(match.a.text[:dash_position - 1]).rstrip())
+            matches[counter].team2 = choose_team(str(match.a.text[dash_position + 2:]).rstrip())
             matches[counter].odd_1 = odd_1.strip('\n')
             matches[counter].odd_X = odd_X.strip('\n')
             matches[counter].odd_2 = odd_2.strip('\n')
             matches[counter].odd_1X = odd_1X.strip('\n')
             matches[counter].odd_2X = odd_2X.strip('\n')
             matches[counter].odd_12 = odd_12.strip('\n')
+            database.odds_data_entry(matches[counter].match_id, odd_1, odd_X, odd_2, odd_1X, odd_2X, odd_12)
             print(matches[counter].odd_1 + '   ' + matches[counter].odd_X + '   ' + matches[counter].odd_2 + '   ' + matches[counter].odd_1X + '   ' + matches[counter].odd_2X + '   ' + matches[counter].odd_12)
             counter = counter+1
     return

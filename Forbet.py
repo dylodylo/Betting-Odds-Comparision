@@ -2,6 +2,7 @@ import Fortuna
 from typing import NamedTuple
 from bs4 import BeautifulSoup
 import requests
+import database
 
 class League_Fortuna:
     league_id : int
@@ -25,6 +26,7 @@ class League_Fortuna:
         match_containers = page_content.find_all('div', {"data-gamename": "1X2"}) #zbiera wszystkie mecze (zespol1 - zespol 2)
         print(type(match_containers))
         print(len(match_containers))
+        print(page_link)
         load_matches_odds(match_containers)
         return
 
@@ -53,7 +55,7 @@ def load_leagues():
         a = League_Fortuna(a_league_id, a_league_name, a_league_site);
         football_leagues.append(a)
         counter = counter + 1
-    b = 40
+    b = 1
     while b < len(football_leagues):
         football_leagues[b].load_league()
         b = b + 1
@@ -110,5 +112,7 @@ def load_matches_odds(match_containers):
             else:
                 matches[which_match].odd_2 = match_containers[counter]['data-outcomeodds']
                 print(matches[which_match].odd_1 + '   ' + matches[which_match].odd_X + '   ' + matches[which_match].odd_2)
+                database.Forbet_odds_data_entry(matches[which_match].match_id, matches[which_match].odd_1, matches[which_match].odd_X, matches[which_match].odd_2)
+                database.Forbet_match_entry(matches[which_match].match_id, matches[which_match].team_1, matches[which_match].team_2)
         counter = counter+1
     return

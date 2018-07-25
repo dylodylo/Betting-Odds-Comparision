@@ -22,10 +22,15 @@ class League_Fortuna(object):
         page_content = BeautifulSoup(page_response.content, "html.parser")
 
         odd_container = page_content('td', class_='col_bet') #zbiera wszystkie kursy
-        match_containers = page_content.find_all('tr', {"data-gtm-enhanced-ecommerce-variant": "mecz"}) #zbiera wszystkie mecze (zespol1 - zespol 2)
+        match_containers = page_content.find_all('tr', {"data-gtm-enhanced-ecommerce-variant": "mecz"}, ({"data-gtm-enhanced-ecommerce-sport": "Pilka nozna"} or {"data-gtm-enhanced-ecommerce-sport": "Piłka nożna"}), ) #zbiera wszystkie mecze (zespol1 - zespol 2)
+        live_match_container = page_content.find_all('td', {"class": "col_title col_title_live_running"})
         print(type(match_containers))
         print(len(match_containers))
-        load_matches_odds(match_containers, odd_container)
+        print (page_link)
+        if (len(match_containers) != 0):
+            print(match_containers[0].get("data-gtm-enhanced-ecommerce-sport"))
+        if len(match_containers) != 0 and str(match_containers[0].get("data-gtm-enhanced-ecommerce-sport")) in['Pilka nozna', 'Piłka nożna']:
+            load_matches_odds(match_containers, odd_container, len(live_match_container))
         return
 
 football_leagues = []
@@ -44,12 +49,12 @@ def load_leagues():
         for_check = ["sport-179"]
         i = 0 #counter dla sports_container
         while i<len(sports_container):
-            if sports_container[i].attrs['id'] == 'sport-179':
+            if sports_container[i]['id'] == 'sport-179':
                 del sports_container[i]
             i = i+1
 
         print(sports_container[0].text)
-        for x in sports_container:
+        for x  in sports_container:
             for a in x.find_all('a', href=True, text=True):
                 link_text = a['href']
                 print('Link:' + link_text)
@@ -60,7 +65,7 @@ def load_leagues():
                 football_leagues.append(a)
                 counter = counter + 1
         b = 0
-        while b < len(football_leagues):
+        while b < len(football_leagues)-20:
             football_leagues[b].load_league()
             b = b + 1
         return
@@ -87,10 +92,10 @@ def choose_team(team_name):
 
 #ładowanie kursów meczów z danej ligi (podstrony)
     #match containers przechowuje wszystkie mecze (zespoły), a odd container wszystkie kursy
-def load_matches_odds( match_containers, odd_container ):
+def load_matches_odds( match_containers, odd_container, live_matches):
     matches = []
     counter=0
-    while counter < len(match_containers):
+    while counter+live_matches < len(match_containers):
             match=match_containers[counter]
             print(match.a.text)
             dash_position = match.a.text.find("-")
@@ -135,7 +140,8 @@ def load_matches_odds( match_containers, odd_container ):
             matches[counter].odd_1X = odd_1X.strip('\n')
             matches[counter].odd_2X = odd_2X.strip('\n')
             matches[counter].odd_12 = odd_12.strip('\n')
-            database.odds_data_entry(matches[counter].match_id, odd_1, odd_X, odd_2, odd_1X, odd_2X, odd_12)
+            database.Fortuna_odds_data_entry(matches[counter].match_id, odd_1, odd_X, odd_2, odd_1X, odd_2X, odd_12)
+            database.Fortuna_match_entry(matches[counter].match_id, matches[counter].team1, matches[counter].team2)
             print(matches[counter].odd_1 + '   ' + matches[counter].odd_X + '   ' + matches[counter].odd_2 + '   ' + matches[counter].odd_1X + '   ' + matches[counter].odd_2X + '   ' + matches[counter].odd_12)
             counter = counter+1
     return

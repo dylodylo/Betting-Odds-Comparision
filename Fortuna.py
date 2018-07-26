@@ -17,12 +17,12 @@ class League_Fortuna(object):
     def load_league(self):
         page_link = self.league_site
         # fetch the content from url
-        page_response = requests.get(page_link, timeout=5)
+        page_response = requests.get(page_link)
         # parse html
         page_content = BeautifulSoup(page_response.content, "html.parser")
 
         odd_container = page_content('td', class_='col_bet') #zbiera wszystkie kursy
-        match_containers = page_content.find_all('tr', {"data-gtm-enhanced-ecommerce-variant": "mecz"}, ({"data-gtm-enhanced-ecommerce-sport": "Pilka nozna"} or {"data-gtm-enhanced-ecommerce-sport": "Piłka nożna"}), ) #zbiera wszystkie mecze (zespol1 - zespol 2)
+        match_containers = page_content.find_all('tr', {"data-gtm-enhanced-ecommerce-variant": "mecz"}) #zbiera wszystkie mecze (zespol1 - zespol 2)
         live_match_container = page_content.find_all('td', {"class": "col_title col_title_live_running"})
         print(type(match_containers))
         print(len(match_containers))
@@ -39,7 +39,7 @@ def load_leagues():
         counter = 0
         page_link = 'https://www.efortuna.pl/pl/strona_glowna/'
         # fetch the content from url
-        page_response = requests.get(page_link, timeout=5)
+        page_response = requests.get(page_link)
         # parse html
         page_content = BeautifulSoup(page_response.content, "html.parser")
         sports_container = page_content('li', class_='js-sport-menu-item closed')
@@ -65,6 +65,8 @@ def load_leagues():
                 football_leagues.append(a)
                 counter = counter + 1
         b = 0
+        while football_leagues[b].league_site != 'https://www.efortuna.pl/pl/strona_glowna/pilka-nozna':
+            b=b+1
         while b < len(football_leagues)-20:
             football_leagues[b].load_league()
             b = b + 1
@@ -96,7 +98,7 @@ def load_matches_odds( match_containers, odd_container, live_matches):
     matches = []
     counter=0
     while counter+live_matches < len(match_containers):
-            match=match_containers[counter]
+            match=match_containers[counter+live_matches]
             print(match.a.text)
             dash_position = match.a.text.find("-")
             matches.append(Match_Odds)
@@ -131,7 +133,7 @@ def load_matches_odds( match_containers, odd_container, live_matches):
                 odd_12 = win_6_odd.a.text
             except AttributeError:
                 odd_12 = '0'
-            matches[counter].match_id = int(match_containers[counter]['data-id'])
+            matches[counter].match_id = int(match_containers[counter+live_matches]['data-id'])
             matches[counter].team1 = choose_team(str(match.a.text[:dash_position - 1]).rstrip())
             matches[counter].team2 = choose_team(str(match.a.text[dash_position + 2:]).rstrip())
             matches[counter].odd_1 = odd_1.strip('\n')
@@ -145,7 +147,3 @@ def load_matches_odds( match_containers, odd_container, live_matches):
             print(matches[counter].odd_1 + '   ' + matches[counter].odd_X + '   ' + matches[counter].odd_2 + '   ' + matches[counter].odd_1X + '   ' + matches[counter].odd_2X + '   ' + matches[counter].odd_12)
             counter = counter+1
     return
-
-
-
-

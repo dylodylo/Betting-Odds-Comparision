@@ -48,3 +48,32 @@ def delete_table():
     c.execute("DROP TABLE Forbet_match_odds")
     c.execute("DROP TABLE Fortuna_matches")
     c.execute("DROP TABLE Forbet_matches")
+
+def insert_teams():
+    c.execute("DROP TABLE IF EXISTS Teams")
+    c.execute("CREATE TABLE IF NOT EXISTS Teams(id INT_PRIMARY_KEY, fortuna_name STRING)")
+    c.execute("SELECT t1 FROM Fortuna_matches")
+    data = c.fetchall()
+    i = 0
+    for row in data:
+        row = str(row)[2:].rstrip("\',)")
+        c.execute("SELECT fortuna_name FROM Teams WHERE fortuna_name = '"+row+"'")
+        pom = c.fetchall()
+        if  len(pom) > 0:
+            pass
+        else:
+            c.execute('INSERT INTO Teams (id, fortuna_name) VALUES (?,?)', (i, row))
+            i = i+1
+    c.execute("SELECT t2 FROM Fortuna_matches")
+    data = c.fetchall()
+    for row in data:
+        row = str(row)[2:].rstrip("\',)")
+        c.execute("SELECT fortuna_name FROM Teams WHERE fortuna_name = '"+row+"'")
+        pom = c.fetchall()
+        if  len(pom) > 0:
+            pass
+        else:
+            c.execute('INSERT INTO Teams (id, fortuna_name) VALUES (?,?)', (i, row))
+            i = i+1
+    print(data)
+    conn.commit()

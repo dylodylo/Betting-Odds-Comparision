@@ -30,7 +30,7 @@ class League_Fortuna(object):
         if (len(match_containers) != 0):
             print(match_containers[0].get("data-gtm-enhanced-ecommerce-sport"))
         if len(match_containers) != 0 and str(match_containers[0].get("data-gtm-enhanced-ecommerce-sport")) in['Pilka nozna', 'Piłka nożna']:
-            load_matches_odds(match_containers, odd_container, len(live_match_container))
+            load_matches_odds(match_containers, odd_container, len(live_match_container), self.league_id)
         return
 
 football_leagues = []
@@ -95,7 +95,7 @@ def choose_team(team_name):
 
 #ładowanie kursów meczów z danej ligi (podstrony)
     #match containers przechowuje wszystkie mecze (zespoły), a odd container wszystkie kursy
-def load_matches_odds( match_containers, odd_container, live_matches):
+def load_matches_odds( match_containers, odd_container, live_matches, league_id):
     matches = []
     counter=0
     while counter+live_matches < len(match_containers):
@@ -135,15 +135,15 @@ def load_matches_odds( match_containers, odd_container, live_matches):
             except AttributeError:
                 odd_12 = '0'
             matches[counter].match_id = int(match_containers[counter+live_matches]['data-id'])
-            matches[counter].team1 = choose_team(str(match.a.text[:dash_position - 1]).rstrip())
-            matches[counter].team2 = choose_team(str(match.a.text[dash_position + 2:]).rstrip())
+            matches[counter].team1 = str(match.a.text[:dash_position - 1]).rstrip()
+            matches[counter].team2 = str(match.a.text[dash_position + 2:]).rstrip()
             matches[counter].odd_1 = odd_1.strip('\n')
             matches[counter].odd_X = odd_X.strip('\n')
             matches[counter].odd_2 = odd_2.strip('\n')
             matches[counter].odd_1X = odd_1X.strip('\n')
             matches[counter].odd_2X = odd_2X.strip('\n')
             matches[counter].odd_12 = odd_12.strip('\n')
-            database.Fortuna_odds_data_entry(matches[counter].match_id, odd_1, odd_X, odd_2, odd_1X, odd_2X, odd_12)
+            database.Fortuna_odds_data_entry(matches[counter].match_id, odd_1, odd_X, odd_2, odd_1X, odd_2X, odd_12, league_id)
             database.Fortuna_match_entry(matches[counter].match_id, matches[counter].team1, matches[counter].team2)
             print(matches[counter].odd_1 + '   ' + matches[counter].odd_X + '   ' + matches[counter].odd_2 + '   ' + matches[counter].odd_1X + '   ' + matches[counter].odd_2X + '   ' + matches[counter].odd_12)
             counter = counter+1

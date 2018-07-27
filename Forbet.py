@@ -27,7 +27,7 @@ class League_Fortuna:
         print(type(match_containers))
         print(len(match_containers))
         print(page_link)
-        load_matches_odds(match_containers)
+        load_matches_odds(match_containers, self.league_id)
         return
 
 
@@ -55,6 +55,7 @@ def load_leagues():
         a = League_Fortuna(a_league_id, a_league_name, a_league_site);
         football_leagues.append(a)
         counter = counter + 1
+        database.Forbet_leagues_entry(a_league_id, a_league_site, a_league_name)
     b = 1
     while b < len(football_leagues):
         football_leagues[b].load_league()
@@ -79,7 +80,7 @@ def choose_team(team_name):
 
 #ładowanie kursów meczów z danej ligi (podstrony)
     #match containers przechowuje wszystkie mecze (zespoły), a odd container wszystkie kursy
-def load_matches_odds(match_containers):
+def load_matches_odds(match_containers, league_id):
     matches = []
     counter=0
 
@@ -112,7 +113,7 @@ def load_matches_odds(match_containers):
             else:
                 matches[which_match].odd_2 = match_containers[counter]['data-outcomeodds']
                 print(matches[which_match].odd_1 + '   ' + matches[which_match].odd_X + '   ' + matches[which_match].odd_2)
-                database.Forbet_odds_data_entry(matches[which_match].match_id, matches[which_match].odd_1, matches[which_match].odd_X, matches[which_match].odd_2)
+                database.Forbet_odds_data_entry(matches[which_match].match_id, matches[which_match].odd_1, matches[which_match].odd_X, matches[which_match].odd_2, league_id)
                 database.Forbet_match_entry(matches[which_match].match_id, matches[which_match].team_1, matches[which_match].team_2)
         counter = counter+1
     return

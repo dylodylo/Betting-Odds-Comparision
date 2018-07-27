@@ -5,15 +5,24 @@ conn = sqlite3.connect('bazadanych.db')
 c = conn.cursor()
 
 def create_table():
-    c.execute('CREATE TABLE IF NOT EXISTS Fortuna_match_odds(id INT PRIMARY KEY, jed FLOAT, X FLOAT, dwa FLOAT, jX FLOAT, Xd FLOAT, jd FLOAT)')
+    c.execute('CREATE TABLE IF NOT EXISTS Fortuna_leagues(id INT_PRIMARY_KEY, site STRING, name STRING)')
+    c.execute('CREATE TABLE IF NOT EXISTS Fortuna_match_odds(id INT PRIMARY KEY, jed FLOAT, X FLOAT, dwa FLOAT, jX FLOAT, Xd FLOAT, jd FLOAT, FOREIGN KEY(id) REFERENCES Fortuna_leagues(id))')
     c.execute('CREATE TABLE IF NOT EXISTS Forbet_match_odds(id INT PRIMARY KEY, jed FLOAT, X FLOAT, dwa FLOAT, jX FLOAT, Xd FLOAT, jd FLOAT)')
     c.execute('CREATE TABLE IF NOT EXISTS Fortuna_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
     c.execute('CREATE TABLE IF NOT EXISTS Forbet_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
+
 def data_entry():
     c.execute("INSERT INTO match VALUES(1, 2.5, 2.4, 3.2, 1.4, 1.3, 1.2)")
     conn.commit()
     c.close()
     conn.close()
+
+def insert_Fortuna_leagues(id, site, name):
+    try:
+        c.execute("INSERT INTO Fortuna_leagues VALUES (?, ?, ?)", (id, site, name))
+    except sqlite3.IntegrityError as ie:
+        print("blad z dodaniem lig")
+    conn.commit()
 
 def Fortuna_odds_data_entry(id, odd1, oddx, odd2, odd1x, oddx2, odd12):
     try:
@@ -44,10 +53,11 @@ def Forbet_match_entry(id, t1, t2):
     conn.commit()
 
 def delete_table():
-    c.execute("DROP TABLE Fortuna_match_odds")
-    c.execute("DROP TABLE Forbet_match_odds")
-    c.execute("DROP TABLE Fortuna_matches")
-    c.execute("DROP TABLE Forbet_matches")
+    c.execute("DROP TABLE IF EXISTS Fortuna_match_odds")
+    c.execute("DROP TABLE IF EXISTS Forbet_match_odds")
+    c.execute("DROP TABLE IF EXISTS Fortuna_matches")
+    c.execute("DROP TABLE IF EXISTS Forbet_matches")
+    c.execute("DROP TABLE IF EXISTS Fortuna_leagues")
 
 def insert_teams():
     c.execute("DROP TABLE IF EXISTS Teams")

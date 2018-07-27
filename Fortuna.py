@@ -60,14 +60,15 @@ def load_leagues():
                 print('Link:' + link_text)
                 a_league_site = 'https://www.efortuna.pl' + link_text
                 a_league_id = counter
-                a_league_name = "league " + str(counter)
-                a = League_Fortuna(a_league_id, a_league_name, a_league_site);
-                football_leagues.append(a)
+                a_league_name = a_league_site[53:]
+                if a_league_site[:53] == 'https://www.efortuna.pl/pl/strona_glowna/pilka-nozna/':
+                    a = League_Fortuna(a_league_id, a_league_name, a_league_site);
+                    football_leagues.append(a)
+                    database.insert_Fortuna_leagues(a_league_id, a_league_site, a_league_name)
                 counter = counter + 1
+
         b = 0
-        while football_leagues[b].league_site != 'https://www.efortuna.pl/pl/strona_glowna/pilka-nozna':
-            b=b+1
-        while b < len(football_leagues)-20:
+        while b < len(football_leagues):
             football_leagues[b].load_league()
             b = b + 1
         return

@@ -66,6 +66,7 @@ def delete_table():
     c.execute("DROP TABLE IF EXISTS Fortuna_matches")
     c.execute("DROP TABLE IF EXISTS Forbet_matches")
     c.execute("DROP TABLE IF EXISTS Fortuna_leagues")
+    c.execute("DROP TABLE IF EXISTS Forbet_leagues")
 
 def insert_teams():
     c.execute("DROP TABLE IF EXISTS Teams")
@@ -98,5 +99,8 @@ def insert_teams():
 
 def show_league_matches():
     c.execute("SELECT t1, t2 FROM Fortuna_matches AS fm INNER JOIN Fortuna_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Fortuna_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.name = 'ekstraklasa'")
+    data = c.fetchall()
+    print(data)
+    c.execute("SELECT t1, t2 FROM Forbet_matches AS fm INNER JOIN Forbet_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Forbet_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.name = 'league 0'")
     data = c.fetchall()
     print(data)

@@ -3,6 +3,13 @@ from typing import NamedTuple
 from bs4 import BeautifulSoup
 import requests
 import database
+import unicodedata
+
+def shave_marks(txt):
+    """This method removes all diacritic marks from the given string"""
+    norm_txt = unicodedata.normalize('NFD', txt)
+    shaved = ''.join(c for c in norm_txt if not unicodedata.combining(c))
+    return unicodedata.normalize('NFC', shaved)
 
 class League_Fortuna:
     league_id : int
@@ -24,11 +31,13 @@ class League_Fortuna:
 
         #odd_container = page_content('td', class_='col_bet') #zbiera wszystkie kursy
         match_containers = page_content.find_all('div', {"data-gamename": "1X2"}) #zbiera wszystkie mecze (zespol1 - zespol 2)
+        if len(match_containers) == 0:
+            return 0
         print(type(match_containers))
         print(len(match_containers))
         print(page_link)
         load_matches_odds(match_containers, self.league_id)
-        return
+        return len(match_containers)
 
 
 #ładuje WWSZYSTKIE ligi do kontenera
@@ -40,26 +49,27 @@ def load_leagues():
     page_response = requests.get(page_link, timeout=5)
     # parse html
     page_content = BeautifulSoup(page_response.content, "html.parser")
-    sports_container = page_content('input', id=True, type='checkbox')
+    sports_container = page_content('div', id='cat-1')
 
     '''        if sports_container[0].attrs['id'] == 'sport-179':
           del sports_container[0]'''
     for_check = ["sport-179"]
-
-    for a in sports_container:
+    leagues_container = sports_container[0].find_all('input', id=True)
+    for a in leagues_container:
         link_text = a.attrs['id'][7:]
         print('Link: https://www.iforbet.pl/oferta/8/' + link_text)
         a_league_site = 'https://www.iforbet.pl/oferta/8/' + link_text
         a_league_id = counter
         a_league_name = "league " + str(counter)
         a = League_Fortuna(a_league_id, a_league_name, a_league_site);
-        football_leagues.append(a)
+        if a.load_league() > 0:
+            database.Forbet_leagues_entry(a_league_id, a_league_site, a_league_name)
         counter = counter + 1
-        database.Forbet_leagues_entry(a_league_id, a_league_site, a_league_name)
-    b = 1
+
+    '''b = 0
     while b < len(football_leagues):
         football_leagues[b].load_league()
-        b = b + 1
+        b = b + 1'''
     return
 find_match = False
 class Match_Odds:
@@ -104,8 +114,8 @@ def load_matches_odds(match_containers, league_id):
             print('Kurs na \n' + '1' + '      ' + 'X' + '      ' + '2' + '      ' + '1X' + '      ' + '2X' + '      ' + '12')
             matches[which_match].odd_1 = match_containers[counter]['data-outcomeodds']
             dash_position = str(match_containers[counter]['data-eventname']).find('-')
-            matches[which_match].team_1 = choose_team(str(match_containers[counter]['data-eventname'])[:dash_position - 1])
-            matches[which_match].team_2 = choose_team(str(match_containers[counter]['data-eventname'])[dash_position + 2:])
+            matches[which_match].team_1 = shave_marks(choose_team(str(match_containers[counter]['data-eventname'])[:dash_position - 1]))
+            matches[which_match].team_2 = choose_team((str(match_containers[counter]['data-eventname'])[dash_position + 2:]))
         else:
             which_match = matches.index(multi_match_id)
             if match_containers[counter]['data-outcomename'] == 'X':

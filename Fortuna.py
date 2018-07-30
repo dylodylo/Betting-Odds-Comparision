@@ -24,6 +24,8 @@ class League_Fortuna(object):
         odd_container = page_content('td', class_='col_bet') #zbiera wszystkie kursy
         match_containers = page_content.find_all('tr', {"data-gtm-enhanced-ecommerce-variant": "mecz"}) #zbiera wszystkie mecze (zespol1 - zespol 2)
         live_match_container = page_content.find_all('td', {"class": "col_title col_title_live_running"})
+        if len(match_containers) == 0:
+            return 0
         print(type(match_containers))
         print(len(match_containers))
         print (page_link)
@@ -31,7 +33,7 @@ class League_Fortuna(object):
             print(match_containers[0].get("data-gtm-enhanced-ecommerce-sport"))
         if len(match_containers) != 0 and str(match_containers[0].get("data-gtm-enhanced-ecommerce-sport")) in['Pilka nozna', 'Piłka nożna']:
             load_matches_odds(match_containers, odd_container, len(live_match_container), self.league_id)
-        return
+        return len(match_containers)
 
 football_leagues = []
 #ładuje WWSZYSTKIE ligi do kontenera
@@ -63,14 +65,14 @@ def load_leagues():
                 a_league_name = a_league_site[53:]
                 if a_league_site[:53] == 'https://www.efortuna.pl/pl/strona_glowna/pilka-nozna/':
                     a = League_Fortuna(a_league_id, a_league_name, a_league_site);
-                    football_leagues.append(a)
-                    database.insert_Fortuna_leagues(a_league_id, a_league_site, a_league_name)
+                    if a.load_league() > 0:
+                        database.insert_Fortuna_leagues(a_league_id, a_league_site, a_league_name)
                 counter = counter + 1
 
-        b = 0
+        '''b = 0
         while b < len(football_leagues):
             football_leagues[b].load_league()
-            b = b + 1
+            b = b + 1'''
         return
 
 class Match_Odds(NamedTuple):

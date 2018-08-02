@@ -1,14 +1,15 @@
 import sqlite3
+import jellyfish
 
 conn = sqlite3.connect('bazadanych.db')
 
 c = conn.cursor()
 
 def create_table():
-    c.execute('CREATE TABLE IF NOT EXISTS Fortuna_leagues(id INT_PRIMARY_KEY, site STRING, name STRING)')
+    c.execute('CREATE TABLE IF NOT EXISTS Fortuna_leagues(id INT PRIMARY KEY, site STRING, name STRING)')
     c.execute('CREATE TABLE IF NOT EXISTS Fortuna_match_odds(id INT PRIMARY KEY, jed FLOAT, X FLOAT, dwa FLOAT, jX FLOAT, Xd FLOAT, jd FLOAT, league_id INT, FOREIGN KEY(league_id) REFERENCES Fortuna_leagues(id))')
     c.execute('CREATE TABLE IF NOT EXISTS Fortuna_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
-    c.execute('CREATE TABLE IF NOT EXISTS Forbet_leagues(id INT_PRIMARY_KEY, site STRING, name STRING)')
+    c.execute('CREATE TABLE IF NOT EXISTS Forbet_leagues(id INT PRIMARY KEY, site STRING, name STRING)')
     c.execute('CREATE TABLE IF NOT EXISTS Forbet_match_odds(id INT PRIMARY KEY, jed FLOAT, X FLOAT, dwa FLOAT, jX FLOAT, Xd FLOAT, jd FLOAT, league_id INT, FOREIGN KEY(league_id) REFERENCES Forbet_leagues(id))')
     c.execute('CREATE TABLE IF NOT EXISTS Forbet_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
 
@@ -104,3 +105,36 @@ def show_league_matches():
     c.execute("SELECT t1, t2 FROM Forbet_matches AS fm INNER JOIN Forbet_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Forbet_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.name = 'league 0'")
     data = c.fetchall()
     print(data)
+
+def match_leagues():
+
+    c.execute("SELECT * FROM Fortuna_leagues")
+    leagues_Fortuna_data = c.fetchall()
+    c.execute("SELECT * FROM Forbet_leagues")
+    leagues_Forbet_data = c.fetchall()
+    MatchedLeaguesFA = [0] * leagues_Fortuna_data.__sizeof__()
+    MatchedLeaguesFT = [0] * leagues_Forbet_data.__sizeof__()
+    findLeague = None
+    for row in leagues_Fortuna_data:
+        if MatchedLeaguesFA[row[0]] == False:
+            c.execute("SELECT t1, t2 FROM Fortuna_matches AS fm INNER JOIN Fortuna_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Fortuna_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.id = " + str(row[0]))
+            Fortuna_matches_data = c.fetchall()
+            for fone_match in Fortuna_matches_data:
+                for roow in leagues_Forbet_data:
+                    findLeague = False
+                    if MatchedLeaguesFT[roow[0]] == False:
+                        c.execute("SELECT t1, t2 FROM Forbet_matches AS fm INNER JOIN Forbet_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Forbet_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.id = " + str(roow[0]))
+                        Forbet_matches_data = c.fetchall()
+                        for one_match in Forbet_matches_data:
+                            if jellyfish.jaro_distance(str(fone_match[0]), str(one_match[0])) > 0.8 or jellyfish.jaro_distance(str(fone_match[1]), str(one_match[1])) > 0.8:
+                                print(Forbet_matches_data)
+                                print(Fortuna_matches_data)
+                                input()
+                                findLeague = True
+                                MatchedLeaguesFT[roow[0]] = True
+                                MatchedLeaguesFA[row[0]] = True
+                                break
+                    if findLeague == True:
+                        break
+                if findLeague == True:
+                    break

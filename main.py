@@ -7,4 +7,4 @@ database.create_table()
 Fortuna.load_leagues()
 Forbet.load_leagues()
 database.insert_teams()'''
-database.match_leagues()
+database.teams_from_league()

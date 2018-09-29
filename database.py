@@ -149,6 +149,7 @@ def teams_from_league():
     leagues_data = c.fetchall()
     i = 0
     isFind = False
+    listaostaczena = []
     for row in leagues_data:
         forbetid = row[0]
         fortunaid = row[1]
@@ -163,23 +164,174 @@ def teams_from_league():
         forbet_teams = c.fetchall()
         for rowinforbet in forbet_teams:
                 for rowinfortuna in fortuna_teams:
-                    if jellyfish.jaro_winkler(rowinforbet[0], rowinfortuna[0]) > 0.6 and jellyfish.jaro_winkler(rowinforbet[1], rowinfortuna[1]) > 0.6:
+                    #print (str(rowinforbet[0]) + " " + str(jellyfish.jaro_winkler(rowinforbet[0], rowinfortuna[0]))+" "+ str(rowinfortuna[0]) + " " + str(rowinforbet[1]) + " " + str(jellyfish.jaro_winkler(rowinforbet[1], rowinfortuna[1])) + " " + str(rowinfortuna[1]))
+                    if jellyfish.jaro_winkler(rowinforbet[0], rowinfortuna[0]) > 0.7 and jellyfish.jaro_winkler(rowinforbet[1], rowinfortuna[1]) > 0.7:
                         print(rowinforbet + rowinfortuna)
                         i +=1
                         forbettoDelete.append(rowinforbet)
                         fortunatoDelete.append(rowinfortuna)
+                        listaostaczena.append(rowinforbet)
+                        listaostaczena.append(rowinfortuna)
                         isFind = True
                         break
                 if isFind == False:
                     print(rowinforbet)
                 else:
                     isFind = False
-        '''if len(forbettoDelete) > 0:
+
+        if len(forbettoDelete) > 0:
             for rowinrow in forbettoDelete:
                 forbet_teams.remove(rowinrow)
         if len(fortunatoDelete) > 0:
             for rowinrow2 in fortunatoDelete:
-                fortuna_teams.remove(rowinrow2)'''
+                if len(fortuna_teams) > 0:
+                    try:
+                        fortuna_teams.remove(rowinrow2)
+                    except ValueError:
+                        print("blad z meczem " + str(rowinrow2))
         print(forbet_teams)
         print(fortuna_teams)
     print(i)
+    for row in leagues_data:
+        forbetid = row[0]
+        fortunaid = row[1]
+        forbettoDelete = []
+        fortunatoDelete = []
+        c.execute(
+            "SELECT t1, t2 FROM Fortuna_matches AS fm INNER JOIN Fortuna_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Fortuna_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.id = '"+str(fortunaid)+"'")
+        fortuna_teams = c.fetchall()
+        print(len(fortuna_teams))
+        c.execute(
+            "SELECT t1, t2 FROM Forbet_matches AS fm INNER JOIN Forbet_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Forbet_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.id = '"+str(forbetid)+"'")
+        forbet_teams = c.fetchall()
+        for rowinforbet in forbet_teams:
+                for rowinfortuna in fortuna_teams:
+                    if rowinfortuna in listaostaczena:
+                        isFind == True
+                    else:
+                        #print (str(rowinforbet[0]) + " " + str(jellyfish.jaro_winkler(rowinforbet[0], rowinfortuna[0]))+" "+ str(rowinfortuna[0]) + " " + str(rowinforbet[1]) + " " + str(jellyfish.jaro_winkler(rowinforbet[1], rowinfortuna[1])) + " " + str(rowinfortuna[1]))
+                        if jellyfish.jaro_winkler(rowinforbet[0], rowinfortuna[0]) > 0.6 and jellyfish.jaro_winkler(rowinforbet[1], rowinfortuna[1]) > 0.6:
+                            print(rowinforbet + rowinfortuna)
+                            i +=1
+                            forbettoDelete.append(rowinforbet)
+                            fortunatoDelete.append(rowinfortuna)
+                            listaostaczena.append(rowinforbet)
+                            listaostaczena.append(rowinfortuna)
+                            isFind = True
+                            break
+                if isFind == False:
+                    print(rowinforbet)
+                else:
+                    isFind = False
+        listaostaczena.append(forbettoDelete)
+        listaostaczena.append(fortunatoDelete)
+        if len(forbettoDelete) > 0:
+            for rowinrow in forbettoDelete:
+                forbet_teams.remove(rowinrow)
+        if len(fortunatoDelete) > 0:
+            for rowinrow2 in fortunatoDelete:
+                if len(fortuna_teams) > 0:
+                    try:
+                        fortuna_teams.remove(rowinrow2)
+                    except ValueError:
+                        print("blad z meczem " + str(rowinrow2))
+        print(forbet_teams)
+        print(fortuna_teams)
+    print(i)
+    for row in leagues_data:
+        forbetid = row[0]
+        fortunaid = row[1]
+        forbettoDelete = []
+        fortunatoDelete = []
+        c.execute(
+            "SELECT t1, t2 FROM Fortuna_matches AS fm INNER JOIN Fortuna_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Fortuna_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.id = '"+str(fortunaid)+"'")
+        fortuna_teams = c.fetchall()
+        print(len(fortuna_teams))
+        c.execute(
+            "SELECT t1, t2 FROM Forbet_matches AS fm INNER JOIN Forbet_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Forbet_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.id = '"+str(forbetid)+"'")
+        forbet_teams = c.fetchall()
+        for rowinforbet in forbet_teams:
+                for rowinfortuna in fortuna_teams:
+                    if rowinfortuna in listaostaczena:
+                        isFind == True
+                    else:
+                        #print (str(rowinforbet[0]) + " " + str(jellyfish.jaro_winkler(rowinforbet[0], rowinfortuna[0]))+" "+ str(rowinfortuna[0]) + " " + str(rowinforbet[1]) + " " + str(jellyfish.jaro_winkler(rowinforbet[1], rowinfortuna[1])) + " " + str(rowinfortuna[1]))
+                        if jellyfish.jaro_winkler(rowinforbet[0], rowinfortuna[0]) > 0.5 and jellyfish.jaro_winkler(rowinforbet[1], rowinfortuna[1]) > 0.5:
+                            print(rowinforbet + rowinfortuna)
+                            i +=1
+                            forbettoDelete.append(rowinforbet)
+                            fortunatoDelete.append(rowinfortuna)
+                            listaostaczena.append(rowinforbet)
+                            listaostaczena.append(rowinfortuna)
+                            isFind = True
+                            break
+                if isFind == False:
+                    print(rowinforbet)
+                else:
+                    isFind = False
+        listaostaczena.append(forbettoDelete)
+        listaostaczena.append(fortunatoDelete)
+        if len(forbettoDelete) > 0:
+            for rowinrow in forbettoDelete:
+                forbet_teams.remove(rowinrow)
+        if len(fortunatoDelete) > 0:
+            for rowinrow2 in fortunatoDelete:
+                if len(fortuna_teams) > 0:
+                    try:
+                        fortuna_teams.remove(rowinrow2)
+                    except ValueError:
+                        print("blad z meczem " + str(rowinrow2))
+        print(forbet_teams)
+        print(fortuna_teams)
+    print(i)
+    for row in leagues_data:
+        forbetid = row[0]
+        fortunaid = row[1]
+        forbettoDelete = []
+        fortunatoDelete = []
+        c.execute(
+            "SELECT t1, t2 FROM Fortuna_matches AS fm INNER JOIN Fortuna_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Fortuna_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.id = '"+str(fortunaid)+"'")
+        fortuna_teams = c.fetchall()
+        print(len(fortuna_teams))
+        c.execute(
+            "SELECT t1, t2 FROM Forbet_matches AS fm INNER JOIN Forbet_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Forbet_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.id = '"+str(forbetid)+"'")
+        forbet_teams = c.fetchall()
+        for rowinforbet in forbet_teams:
+                for rowinfortuna in fortuna_teams:
+                    if rowinfortuna in listaostaczena:
+                        isFind == True
+                    else:
+                        #print (str(rowinforbet[0]) + " " + str(jellyfish.jaro_winkler(rowinforbet[0], rowinfortuna[0]))+" "+ str(rowinfortuna[0]) + " " + str(rowinforbet[1]) + " " + str(jellyfish.jaro_winkler(rowinforbet[1], rowinfortuna[1])) + " " + str(rowinfortuna[1]))
+                        if jellyfish.jaro_winkler(rowinforbet[0], rowinfortuna[0]) > 0.4 and jellyfish.jaro_winkler(rowinforbet[1], rowinfortuna[1]) > 0.4:
+                            print(rowinforbet + rowinfortuna)
+                            i +=1
+                            forbettoDelete.append(rowinforbet)
+                            fortunatoDelete.append(rowinfortuna)
+                            listaostaczena.append(rowinforbet)
+                            listaostaczena.append(rowinfortuna)
+                            isFind = True
+                            break
+                if isFind == False:
+                    print(rowinforbet)
+                else:
+                    isFind = False
+        listaostaczena.append(forbettoDelete)
+        listaostaczena.append(fortunatoDelete)
+        if len(forbettoDelete) > 0:
+            for rowinrow in forbettoDelete:
+                forbet_teams.remove(rowinrow)
+        if len(fortunatoDelete) > 0:
+            for rowinrow2 in fortunatoDelete:
+                if len(fortuna_teams) > 0:
+                    try:
+                        fortuna_teams.remove(rowinrow2)
+                    except ValueError:
+                        print("blad z meczem " + str(rowinrow2))
+        print(forbet_teams)
+        print(fortuna_teams)
+    print(i)
+    y = 0
+    for x in range(len(listaostaczena)):
+        print(str(listaostaczena[y][0]) + " " + str(listaostaczena[y+1][0]))
+        print(str(listaostaczena[y][1]) + " " + str(listaostaczena[y + 1][1]))
+        y += 2

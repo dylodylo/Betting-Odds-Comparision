@@ -83,10 +83,10 @@ class Match_Odds:
     odd_2X : float
     odd_12 : float
 
-def choose_team(team_name):
+'''def choose_team(team_name):
     return {
         "Cracovia Kraków": "Cracovia"
-    }.get(team_name, team_name)
+    }.get(team_name, team_name)'''
 
 #ładowanie kursów meczów z danej ligi (podstrony)
     #match containers przechowuje wszystkie mecze (zespoły), a odd container wszystkie kursy
@@ -115,7 +115,7 @@ def load_matches_odds(match_containers, league_id):
             matches[which_match].odd_1 = match_containers[counter]['data-outcomeodds']
             dash_position = str(match_containers[counter]['data-eventname']).find('-')
             matches[which_match].team_1 = shave_marks(choose_team(str(match_containers[counter]['data-eventname'])[:dash_position - 1]))
-            matches[which_match].team_2 = choose_team((str(match_containers[counter]['data-eventname'])[dash_position + 2:]))
+            matches[which_match].team_2 = shave_marks(choose_team(str(match_containers[counter]['data-eventname'])[dash_position + 2:]))
         else:
             which_match = matches.index(multi_match_id)
             if match_containers[counter]['data-outcomename'] == 'X':

@@ -86,14 +86,14 @@ class Match_Odds(NamedTuple):
     odd_2X : float
     odd_12 : float
 
-def choose_team(team_name):
+'''def choose_team(team_name):
     return {
 
         'W.Plock': "Wisła Płock",
         "Zag.Lubin": "Zagłębie Lubin",
         "Lechia G.": "Lechia Gdańsk",
         "Arka G.": "Arka Gdynia"
-    }.get(team_name, team_name)
+    }.get(team_name, team_name)'''
 
 #ładowanie kursów meczów z danej ligi (podstrony)
     #match containers przechowuje wszystkie mecze (zespoły), a odd container wszystkie kursy

@@ -114,8 +114,8 @@ def load_matches_odds(match_containers, league_id):
             print('Kurs na \n' + '1' + '      ' + 'X' + '      ' + '2' + '      ' + '1X' + '      ' + '2X' + '      ' + '12')
             matches[which_match].odd_1 = match_containers[counter]['data-outcomeodds']
             dash_position = str(match_containers[counter]['data-eventname']).find('-')
-            matches[which_match].team_1 = shave_marks(choose_team(str(match_containers[counter]['data-eventname'])[:dash_position - 1]))
-            matches[which_match].team_2 = shave_marks(choose_team(str(match_containers[counter]['data-eventname'])[dash_position + 2:]))
+            matches[which_match].team_1 = shave_marks(str(match_containers[counter]['data-eventname'])[:dash_position - 1])
+            matches[which_match].team_2 = shave_marks(str(match_containers[counter]['data-eventname'])[dash_position + 2:])
         else:
             which_match = matches.index(multi_match_id)
             if match_containers[counter]['data-outcomename'] == 'X':

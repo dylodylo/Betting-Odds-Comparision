@@ -5,7 +5,7 @@ conn = sqlite3.connect('bazadanych.db')
 
 c = conn.cursor()
 
-def create_table():
+def create_table(): #tworzenie wszystkich tabel
     c.execute('CREATE TABLE IF NOT EXISTS Fortuna_leagues(id INT PRIMARY KEY, site STRING, name STRING)')
     c.execute('CREATE TABLE IF NOT EXISTS Fortuna_match_odds(id INT PRIMARY KEY, jed FLOAT, X FLOAT, dwa FLOAT, jX FLOAT, Xd FLOAT, jd FLOAT, league_id INT, FOREIGN KEY(league_id) REFERENCES Fortuna_leagues(id))')
     c.execute('CREATE TABLE IF NOT EXISTS Fortuna_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
@@ -61,7 +61,7 @@ def Forbet_match_entry(id, t1, t2):
         pass
     conn.commit()
 
-def delete_table():
+def delete_table(): #usuwanie wszystkich tabel
     c.execute("DROP TABLE IF EXISTS Fortuna_match_odds")
     c.execute("DROP TABLE IF EXISTS Forbet_match_odds")
     c.execute("DROP TABLE IF EXISTS Fortuna_matches")
@@ -69,6 +69,7 @@ def delete_table():
     c.execute("DROP TABLE IF EXISTS Fortuna_leagues")
     c.execute("DROP TABLE IF EXISTS Forbet_leagues")
 
+#funkcja do umieszczania zespołów w tabeli
 def insert_teams():
     c.execute("DROP TABLE IF EXISTS Teams")
     c.execute("CREATE TABLE IF NOT EXISTS Teams(id INT_PRIMARY_KEY, fortuna_name STRING)")
@@ -98,6 +99,7 @@ def insert_teams():
     print(data)
     conn.commit()
 
+#funkcja do sprawdzania poprawności dodania lig
 def show_league_matches():
     c.execute("SELECT t1, t2 FROM Fortuna_matches AS fm INNER JOIN Fortuna_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Fortuna_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.name = 'ekstraklasa'")
     data = c.fetchall()

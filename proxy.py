@@ -1,6 +1,16 @@
 from bs4 import BeautifulSoup
 import requests
 
+headers = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
+            'AppleWebKit/537.11 (KHTML, like Gecko) '
+            'Chrome/23.0.1271.64 Safari/537.11',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+            'Accept-Encoding': 'none',
+            'Accept-Language': 'en-US,en;q=0.8',
+            'Connection': 'keep-alive'
+}
 def get_actual_proxy():
     # we have to change proxy each time when we get banned
     used_proxies = set()
@@ -11,15 +21,22 @@ def get_actual_proxy():
         if try_proxy(proxy):
             if proxy not in used_proxies:
                 print('got new one')
-                actual_proxy = proxy
+                actual_proxy = {
+            "http": 'http://'+proxy,
+            "https": 'http://'+proxy
+        }
                 return actual_proxy
 
 
 def try_proxy(proxy):
     try:
-        r = requests.get('https://google.com',
-                     proxies={"http": "http://"+proxy, "https": "http://"+proxy}, timeout=10)
-        print(r.text())
+        url = 'https://httpbin.org/ip'
+        proxies = {
+            "http": 'http://'+proxy,
+            "https": 'http://'+proxy
+        }
+        response = requests.get(url, proxies=proxies)
+        print(response.json())
         return True
     except:
         print(f'bad proxy {proxy}')
@@ -35,13 +52,3 @@ def get_proxies():
             f"{proxy.find_all('td')[0].string}:{proxy.find_all('td')[1].string}")
     return proxies
 
-headers = {
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) '
-            'AppleWebKit/537.11 (KHTML, like Gecko) '
-            'Chrome/23.0.1271.64 Safari/537.11',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
-            'Accept-Encoding': 'none',
-            'Accept-Language': 'en-US,en;q=0.8',
-            'Connection': 'keep-alive'
-}

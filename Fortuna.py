@@ -2,6 +2,7 @@ from typing import NamedTuple
 from bs4 import BeautifulSoup
 import requests
 import database
+import proxy
 
 class League_Fortuna(object):
     league_id : int
@@ -17,7 +18,7 @@ class League_Fortuna(object):
     def load_league(self):
         page_link = self.league_site
         # fetch the content from url
-        page_response = requests.get(page_link)
+        page_response = requests.get(page_link, proxies=proxy.get_actual_proxy())
         # parse html
         page_content = BeautifulSoup(page_response.content, "html.parser")
 
@@ -130,12 +131,12 @@ def load_matches_odds( match_containers, odd_container, live_matches, league_id)
             matches[counter].match_id = int(match_containers[counter+live_matches]['data-id'])
             matches[counter].team1 = str(match.a.text[:dash_position - 1]).rstrip()
             matches[counter].team2 = str(match.a.text[dash_position + 2:]).rstrip()
-            matches[counter].odd_1 = odd_1.strip('\n')
-            matches[counter].odd_X = odd_X.strip('\n')
-            matches[counter].odd_2 = odd_2.strip('\n')
-            matches[counter].odd_1X = odd_1X.strip('\n')
-            matches[counter].odd_2X = odd_2X.strip('\n')
-            matches[counter].odd_12 = odd_12.strip('\n')
+            matches[counter].odd_1 = odd_1.strip('\n\r\n')
+            matches[counter].odd_X = odd_X.strip('\n\r\n')
+            matches[counter].odd_2 = odd_2.strip('\n\r\n')
+            matches[counter].odd_1X = odd_1X.strip('\n\r\n')
+            matches[counter].odd_2X = odd_2X.strip('\n\r\n')
+            matches[counter].odd_12 = odd_12.strip('\n\r\n')
             #zapis do bazy kursów (powiązanie z meczem po id)
             database.Fortuna_odds_data_entry(matches[counter].match_id, odd_1, odd_X, odd_2, odd_1X, odd_2X, odd_12, league_id)
             #zapis do bazy danych meczu (powiązanie z kursami po id)

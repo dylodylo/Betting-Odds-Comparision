@@ -1,14 +1,34 @@
 from bs4 import BeautifulSoup
-from selenium import webdriver
 import requests
 
-driver = webdriver.Firefox()
-driver.get("https://stats.iforbet.pl/pl/soccer/competitions/lotto-ekstraklasa,1498/tables?cs_id=33385&type=fulltime")
+page = requests.get("https://stats.iforbet.pl/pl/soccer/competitions/lotto-ekstraklasa,1498/tables?cs_id=33385&type=fulltime")
+soup = BeautifulSoup(page.content, 'html.parser')
 
-html = driver.page_source
-soup = BeautifulSoup(html)
-out = soup.findAll('h5')
-print(out)
+table_body = soup.find_all('body')
+
+str1 = '<tr data-row="0" >';
+str2 = '<p><span class="round" style="background: #6af060;"></span> Runda mistrzowska</p>';
+begin = str(table_body)
+end = str(table_body)
+
+begin_pos = (str(table_body).find(str1))
+end_pos = (str(table_body).find(str2))
+print (begin[begin_pos:end_pos])
+#print(soup.prettify())
+
+
+
+#from bs4 import BeautifulSoup
+#from selenium import webdriver
+#import requests
+
+#driver = webdriver.Firefox()
+#driver.get("https://stats.iforbet.pl/pl/soccer/competitions/lotto-ekstraklasa,1498/tables?cs_id=33385&type=fulltime")
+
+#html = driver.page_source
+#soup = BeautifulSoup(html)
+#out = soup.findAll('h5')
+#print(out)
 
 # https://en.wikipedia.org/wiki/List_of_FIFA_World_Cup_finals
 # https://stats.iforbet.pl/pl/soccer/competitions/lotto-ekstraklasa,1498/tables?cs_id=33385&type=fulltime

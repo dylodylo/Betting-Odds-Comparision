@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import re
 
 page = requests.get("https://stats.iforbet.pl/pl/soccer/competitions/lotto-ekstraklasa,1498/tables?cs_id=33385&type=fulltime")
 soup = BeautifulSoup(page.content, 'html.parser')
@@ -11,9 +12,13 @@ str2 = '<p><span class="round" style="background: #6af060;"></span> Runda mistrz
 begin = str(table_body)
 end = str(table_body)
 
-begin_pos = (str(table_body).find(str1))
-end_pos = (str(table_body).find(str2))
-print (begin[begin_pos:end_pos])
+urls = str(re.findall(r'<a[\s]+[^>]*?href[\s]?=[\s\"\']*(.*?)[\"\']*.*?>([^<]+|.*?)?<\/a>', begin))
+teams = re.findall("'\w+[\s]\w+'", urls, re.UNICODE)
+print (teams)
+
+#begin_pos = (str(table_body).find(str1))
+#end_pos = (str(table_body).find(str2))
+#print (begin[begin_pos:end_pos])
 #print(soup.prettify())
 
 

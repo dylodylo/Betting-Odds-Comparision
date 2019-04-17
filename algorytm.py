@@ -1,20 +1,28 @@
 from bs4 import BeautifulSoup
 import requests
 import re
+#https://stats.iforbet.pl/pl/soccer/competitions/premier-league,1528
+#https://stats.iforbet.pl/pl/soccer/competitions/lotto-ekstraklasa,1498
+#https://stats.iforbet.pl/pl/soccer/competitions/bundesliga,1556
 
-page = requests.get("https://stats.iforbet.pl/pl/soccer/competitions/lotto-ekstraklasa,1498/tables?cs_id=33385&type=fulltime")
-soup = BeautifulSoup(page.content, 'html.parser')
+leagues = { 'https://stats.iforbet.pl/pl/soccer/competitions/bundesliga,1556',
+            'https://stats.iforbet.pl/pl/soccer/competitions/premier-league,1528',
+            'https://stats.iforbet.pl/pl/soccer/competitions/lotto-ekstraklasa,1498',
+            'https://stats.iforbet.pl/pl/soccer/competitions/laliga-santander,1507',
+            'https://stats.iforbet.pl/pl/soccer/competitions/serie-a,1639',
+            'https://stats.iforbet.pl/pl/soccer/competitions/ligue-1,2131',
+            'https://stats.iforbet.pl/pl/soccer/competitions/liga-nos,1550',
+            'https://stats.iforbet.pl/pl/soccer/competitions/eredivisie,1625'
+            }
+for x in leagues:
+    page = requests.get(x)
+    soup = BeautifulSoup(page.content, 'html.parser')
 
-table_body = soup.find_all('body')
+    table_body = soup.find_all('body')
 
-str1 = '<tr data-row="0" >';
-str2 = '<p><span class="round" style="background: #6af060;"></span> Runda mistrzowska</p>';
-begin = str(table_body)
-end = str(table_body)
-
-urls = str(re.findall(r'<a[\s]+[^>]*?href[\s]?=[\s\"\']*(.*?)[\"\']*.*?>([^<]+|.*?)?<\/a>', begin))
-teams = re.findall("'\w+[\s]\w+'", urls, re.UNICODE)
-print (teams)
+    urls = str(re.findall(r'<a[\s]+[^>]*?href[\s]?=[\s\"\']*(.*?)[\"\']*.*?>([^<]+|.*?)?<\/a>', str(table_body)))
+    teams_forbet = re.findall("'\w+[\s]\w+'", urls, re.UNICODE)
+    print (teams_forbet)
 
 #begin_pos = (str(table_body).find(str1))
 #end_pos = (str(table_body).find(str2))

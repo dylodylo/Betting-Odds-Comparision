@@ -1,4 +1,7 @@
+
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from time import sleep
 import requests
 import re
 #https://stats.iforbet.pl/pl/soccer/competitions/premier-league,1528
@@ -22,13 +25,18 @@ for x in leagues:
 
     urls = str(re.findall(r'<a[\s]+[^>]*?href[\s]?=[\s\"\']*(.*?)[\"\']*.*?>([^<]+|.*?)?<\/a>', str(table_body)))
     teams_forbet = re.findall("'\w+[\s]\w+'", urls, re.UNICODE)
-    print (teams_forbet)
 
-#begin_pos = (str(table_body).find(str1))
-#end_pos = (str(table_body).find(str2))
-#print (begin[begin_pos:end_pos])
-#print(soup.prettify())
+driver = webdriver.Firefox()
+driver.get("https://stats.iforbet.pl/pl/soccer/events")
+sleep(5)
+#
+html = driver.page_source
+soup = BeautifulSoup(html,'html.parser')
+for script in soup(["script","style"]):
+    script.extract()
+out = soup.findAll('div', {"class":"leftMenu__content leftMenu__content--hidden closed"})
 
+print(out)
 
 
 #from bs4 import BeautifulSoup
@@ -36,7 +44,7 @@ for x in leagues:
 #import requests
 
 #driver = webdriver.Firefox()
-#driver.get("https://stats.iforbet.pl/pl/soccer/competitions/lotto-ekstraklasa,1498/tables?cs_id=33385&type=fulltime")
+#driver.get("https://www.iforbet.pl/zaklady-bukmacherskie")
 
 #html = driver.page_source
 #soup = BeautifulSoup(html)

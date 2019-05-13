@@ -1,4 +1,4 @@
-import Fortuna
+﻿import Fortuna
 from typing import NamedTuple
 from bs4 import BeautifulSoup
 import requests

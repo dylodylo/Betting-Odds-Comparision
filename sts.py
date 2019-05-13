@@ -10,26 +10,29 @@ def getAllLinks(allLinkstoLeuge=[]):
     stsURLstronaglowna="https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&t=1557777401" 
     leugesLinks=[]
     allLinkstoLeuge=[]
+    x=0
     answer=requests.get(stsURLstronaglowna)
     if answer.status_code==200:
      soup=BeautifulSoup(answer.content,'html.parser')
      druzyny=soup.find(id="sport_184")
      linki=druzyny.find_all(href=True)  
-     for link in linki:           
+     for link in linki:
+        print(str(x)+"stron z"+str(len(linki)))  
+        x+=1         
         leugesLinks.append(link.get('href'))        
         for linklig in leugesLinks:
          answer2=requests.get(linklig)
          if answer2.status_code==200:
             soup2=BeautifulSoup(answer2.content,'html.parser')
             names = re.findall(r'league_[0,1,2,3,4,5,6,7,8,9,0]*',str(soup2) )
-            for name in names:
-                allLinkstoLeuge.append(soup2.find(id=str(name)).a.get('href'))
+            for name in names:                
+                allLinkstoLeuge.append({'nazwa':soup2.find(id=str(name)).a.text,'link':soup2.find(id=str(name)).a.get('href')})
                 #print(soup2.find(id=str(name)).a.get('href'))
      return allLinkstoLeuge
     else:
         print('blad')
 
-#scrapowanie kursów ze strony
+#scrapowanie kursów ze strony dla danego linku
 def scrapMatches(stsURLleuge,wyniki=[]):
  wyniki=[]
  answer=requests.get(stsURLleuge)
@@ -76,7 +79,4 @@ def scrapMatches(stsURLleuge,wyniki=[]):
                 return wyniki
  else:
      print("Błąd: "+answer.status_code)
-
-
-
-
+     

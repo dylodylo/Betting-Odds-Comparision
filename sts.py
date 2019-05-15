@@ -38,8 +38,9 @@ def scrapMatches(stsURLleuge,wyniki=[]):
  answer=requests.get(stsURLleuge)
  if answer.status_code == 200:
     soup=BeautifulSoup(answer.content,'html.parser')
-    mecze=soup.find(id="offerTables")
+    mecze=soup.find(class_="shadow_box support_bets_offer")
     dzien=mecze.find_all(class_="col3")
+    #print(str(dzien.len()))
     if dzien !=None:
             for x in dzien:
                 druzyna1Nazwa : str =""
@@ -69,14 +70,16 @@ def scrapMatches(stsURLleuge,wyniki=[]):
                         druzyna2Kurs=float(string)
                 KursRemis=float(kursremisStr)
 
-                print("Drużyna 1: "+druzyna1[0])
-                print("Druzyna 1 kurs: "+druzyna1[1])
-                print("Remis: "+kursremisStr)
-                print("Drużyna 2: "+druzyna2[0])
-                print("Drużyna 2 kurs: "+druzyna2[1])
+                print("Drużyna 1: "+druzyna1Nazwa)
+                print("Druzyna 1 kurs: "+str(druzyna1Kurs))
+                print("Remis: "+str(KursRemis))
+                print("Drużyna 2: "+druzyna2Nazwa)
+                print("Drużyna 2 kurs: "+str(druzyna2Kurs))
                 
                 wyniki.append({'druzyna1':druzyna1Nazwa,'kursdruzyna1':druzyna1Kurs,'remis':KursRemis,'druzyna2':druzyna2Nazwa,'kursdruzyna2':druzyna2Kurs})
                 return wyniki
  else:
      print("Błąd: "+answer.status_code)
      
+
+scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6502&league=74203&t=1557935420")

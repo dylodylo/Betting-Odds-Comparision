@@ -14,6 +14,7 @@ driver = webdriver.Firefox()
 driver.get(urlpage)
 time.sleep(3)
 
+
 #parse html
 page_content = BeautifulSoup(driver.page_source, "html.parser")
 sports_container = page_content('a', class_='col-d-3 col-mt-4 col-st-6 col-sm-12 ng-star-inserted')

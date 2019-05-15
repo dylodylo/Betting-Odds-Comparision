@@ -1,12 +1,14 @@
-
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from time import sleep
-import requests
+import requests, exceptions
 import re
+from selenium.webdriver.common.by import By
 #https://stats.iforbet.pl/pl/soccer/competitions/premier-league,1528
 #https://stats.iforbet.pl/pl/soccer/competitions/lotto-ekstraklasa,1498
 #https://stats.iforbet.pl/pl/soccer/competitions/bundesliga,1556
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
 
 leagues = { 'https://stats.iforbet.pl/pl/soccer/competitions/bundesliga,1556',
             'https://stats.iforbet.pl/pl/soccer/competitions/premier-league,1528',
@@ -29,35 +31,17 @@ for x in leagues:
 driver = webdriver.Firefox()
 driver.get("https://stats.iforbet.pl/pl/soccer/events")
 sleep(5)
-#
+# on click action
 html = driver.page_source
-soup = BeautifulSoup(html,'html.parser')
-for script in soup(["script","style"]):
-    script.extract()
-out = soup.findAll('div', {"class":"leftMenu__content leftMenu__content--hidden closed"})
+elements = driver.find_elements_by_xpath("//div[@class='leftMenu__item leftMenu__item--nested1' and @data-menu]/div[@class='leftMenu__subheader']")
 
-print(out)
-
-
-#from bs4 import BeautifulSoup
-#from selenium import webdriver
-#import requests
-
-#driver = webdriver.Firefox()
-#driver.get("https://www.iforbet.pl/zaklady-bukmacherskie")
-
-#html = driver.page_source
-#soup = BeautifulSoup(html)
-#out = soup.findAll('h5')
-#print(out)
-
-# https://en.wikipedia.org/wiki/List_of_FIFA_World_Cup_finals
-# https://stats.iforbet.pl/pl/soccer/competitions/lotto-ekstraklasa,1498/tables?cs_id=33385&type=fulltime
-#page_response = requests.get("https://www.efortuna.pl/pl/strona_glowna/statistiky/index.html")
-#page_content = BeautifulSoup(page_response.content, "html.parser")
-
-
-#for row in rows:
-#    cols=row.find_all('td')
-#    cols=[x.text.strip() for x in cols]
-#    print (cols)
+urls = {}
+for e in elements:
+    e.click()
+    html = driver.page_source
+    sleep(1)
+    soup = BeautifulSoup(html, 'html.parser')
+    urls = urls + soup.findAll('div', {"class": "leftMenu__content leftMenu__content--hidden opened"})
+#
+leagues = str(re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', urls))
+print(leagues)

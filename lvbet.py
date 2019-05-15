@@ -2,12 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
 import Fortuna
-import re
-import os
-import xml
 import time
-import pandas as pd
 import requests
+import unidecode
 
 # specify the url
 urlpage = 'https://lvbet.pl/pl/zaklady-bukmacherskie/5/pilka-nozna'
@@ -16,8 +13,8 @@ print(urlpage)
 driver = webdriver.Firefox()
 driver.get(urlpage)
 time.sleep(3)
-#
-# parse html
+
+#parse html
 page_content = BeautifulSoup(driver.page_source, "html.parser")
 sports_container = page_content('a', class_='col-d-3 col-mt-4 col-st-6 col-sm-12 ng-star-inserted')
 
@@ -25,7 +22,6 @@ football_countries = []
 counter = 0
 for a in sports_container:
     link_text = a.attrs['href']
-    print('pierwsza petla')
     if link_text != '/pl/zaklady-bukmacherskie':
         print('Link: https://lvbet.pl' + link_text)
         a_league_site = 'https://lvbet.pl' + link_text
@@ -39,7 +35,6 @@ football_leagues = []
 countries = football_countries
 for x in countries:
     counter = 0
-    print('druga petla')
     print(x.league_site)
     driver.get(str(x.league_site))
     page_content = BeautifulSoup(driver.page_source, "html.parser")
@@ -63,9 +58,20 @@ for x in football_leagues:
     time.sleep(3)
     slash = link.rfind('/')
     text = link[slash+1:]
-    dash = text.find('-')
-    text_array = list(text)
-    text_array[dash] = ' '
+    p = text.rfind('%')
+    text2 = text[:p]
+    text_array = list(text2)
+    if '-' in text_array:
+        isdash = 1
+    else:
+        isdash = 0
+    while isdash == 1:
+        index = text_array.index('-')
+        text_array[index] = ' '
+        if '-' in text_array:
+            isdash = 1
+        else:
+            isdash = 0
     newtext = "".join(text_array)
 
     page_content = BeautifulSoup(driver.page_source, "html.parser")
@@ -75,7 +81,7 @@ for x in football_leagues:
         teams3 = y.find_all('p')
         odds = y('div', class_="col-d-2 col-md-3 col-sd-2 col-t-3 col-st-6 col-sm-12 ng-star-inserted")
         odds2 = y('div', class_="col-d-2 col-md-3 col-sd-2 col-t-3 col-st-6 col-sm-hidden ng-star-inserted")
-        foramoment = teams[0].text.lower()
+        foramoment = unidecode.unidecode(teams[0].text.lower())
         slice = foramoment.find(newtext)
         slice = slice+len(newtext)
         try:

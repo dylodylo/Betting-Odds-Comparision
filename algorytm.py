@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from time import sleep
-import requests, exceptions
+import requests
 import re
 from selenium.webdriver.common.by import By
 #https://stats.iforbet.pl/pl/soccer/competitions/premier-league,1528
@@ -35,7 +35,7 @@ sleep(5)
 html = driver.page_source
 elements = driver.find_elements_by_xpath("//div[@class='leftMenu__item leftMenu__item--nested1' and @data-menu]/div[@class='leftMenu__subheader']")
 
-urls = {}
+urls = []
 for e in elements:
     e.click()
     html = driver.page_source
@@ -45,3 +45,4 @@ for e in elements:
 #
 leagues = str(re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', urls))
 print(leagues)
+

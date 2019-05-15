@@ -40,9 +40,9 @@ def scrapMatches(stsURLleuge,wyniki=[]):
     soup=BeautifulSoup(answer.content,'html.parser')
     mecze=soup.find(class_="shadow_box support_bets_offer")
     dzien=mecze.find_all(class_="col3")
-    #print(str(dzien.len()))
+    print(str(len(dzien)))
     if dzien !=None:
-            for x in dzien:
+        for x in dzien:
                 druzyna1Nazwa : str =""
                 druzyna2Nazwa : str=""
                 druzyna1Kurs : int
@@ -77,7 +77,7 @@ def scrapMatches(stsURLleuge,wyniki=[]):
                 print("Drużyna 2 kurs: "+str(druzyna2Kurs))
                 
                 wyniki.append({'druzyna1':druzyna1Nazwa,'kursdruzyna1':druzyna1Kurs,'remis':KursRemis,'druzyna2':druzyna2Nazwa,'kursdruzyna2':druzyna2Kurs})
-                return wyniki
+        return wyniki
  else:
      print("Błąd: "+answer.status_code)
      

@@ -4,15 +4,18 @@ from bs4 import BeautifulSoup
 
 driver = webdriver.Firefox()
 driver.get('https://www.milenium.pl/zaklady-bukmacherskie')
-time.sleep(5)
-driver.find_element_by_css_selector('.ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close').click()
+time.sleep(2)
+try:
+    driver.find_element_by_css_selector('.ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close').click()
+except:
+    print("brak x")
 driver.find_element_by_id("close_cookies").click()
 driver.execute_script('offer_sport_toggle(1)')
-element = driver.find_elements_by_xpath("//input[@class='league'][@type='checkbox']")
-#element = driver.find_element_by_xpath("//span[input[@id='l4761']]")
+time.sleep(1)
+element = driver.find_elements_by_xpath("//ul[@id='offer_league_sport_1']/li/span/input")
+#element = element.find_element_by_xpath("//input[@class='league'][@type='checkbox']")
 counter = 1
-try:
-    for e in element:
+for e in element:
         e.click()
         time.sleep(1)
         SCROLL_PAUSE_TIME = 0.5
@@ -33,13 +36,21 @@ try:
                 break
             last_height = new_height
         page_content = BeautifulSoup(driver.page_source, "html.parser")
-        sports_container = page_content('td', class_='nameevent')
-        for x in sports_container:
-            print(x.text)
-        time.sleep(1)
+        match_container = page_content('td', class_='nameevent')
+        odds_container = page_content('td', class_='c type_odds')
+        for match, odds in zip(match_container, odds_container):
+            print(match.text)
+            trueodds = odds.find_all('a')
+            if len(trueodds) == 6:
+                lastodds = []
+                for odd in trueodds:
+                    if odd.text == '':
+                        lastodds.append('1')
+                    else:
+                        lastodds.append(odd.text)
+                print(lastodds)
+                print(lastodds[0] + ' ' + lastodds[1] + ' ' + lastodds[2] + ' ' + lastodds[3] + ' ' + lastodds[4] + ' ' + lastodds[5] + ' ')
         e.click()
         time.sleep(1)
         print(counter)
         counter = counter + 1
-except:
-    print("koniec pilki")

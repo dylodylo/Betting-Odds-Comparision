@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import re
+import json
 
 #Scraping Ekstraklasa STS-website
 stsURLleuge="https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6502&league=74203&t=1556807180"
@@ -46,8 +47,7 @@ def scrapMatches(stsURLleuge,wyniki=[]):
                 druzyna2Nazwa : str=""
                 druzyna1Kurs : int
                 druzyna2Kurs : int
-                KursRemis : int
-                
+                KursRemis : int                
 
                 if x.thead != None:
                     data=x.thead
@@ -67,7 +67,7 @@ def scrapMatches(stsURLleuge,wyniki=[]):
                         druzyna2Nazwa+=string
                     else:
                         druzyna2Kurs=float(string)
-                KursRemis=float(kursremisStr)
+                    KursRemis=float(kursremisStr)
 
                 print("Drużyna 1: "+druzyna1[0])
                 print("Druzyna 1 kurs: "+druzyna1[1])
@@ -76,7 +76,13 @@ def scrapMatches(stsURLleuge,wyniki=[]):
                 print("Drużyna 2 kurs: "+druzyna2[1])
                 
                 wyniki.append({'druzyna1':druzyna1Nazwa,'kursdruzyna1':druzyna1Kurs,'remis':KursRemis,'druzyna2':druzyna2Nazwa,'kursdruzyna2':druzyna2Kurs})
-                return wyniki
+    return wyniki
  else:
      print("Błąd: "+answer.status_code)
-     
+     return None
+
+
+#Przykład dla ligi mistrzów
+#wyn=scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6480&league=15905&t=1558998795",wyniki=[])
+#with open('pilka.txt', 'w') as outfile:  
+#    json.dump(wyn, outfile)

@@ -39,10 +39,11 @@ def scrapMatches(stsURLleuge,wyniki=[]):
  answer=requests.get(stsURLleuge)
  if answer.status_code == 200:
     soup=BeautifulSoup(answer.content,'html.parser')
-    mecze=soup.find(id="offerTables")
+    mecze=soup.find(class_="shadow_box support_bets_offer")
     dzien=mecze.find_all(class_="col3")
+    print(str(len(dzien)))
     if dzien !=None:
-            for x in dzien:
+        for x in dzien:
                 druzyna1Nazwa : str =""
                 druzyna2Nazwa : str=""
                 druzyna1Kurs : int
@@ -69,13 +70,14 @@ def scrapMatches(stsURLleuge,wyniki=[]):
                         druzyna2Kurs=float(string)
                     KursRemis=float(kursremisStr)
 
-                print("Drużyna 1: "+druzyna1[0])
-                print("Druzyna 1 kurs: "+druzyna1[1])
-                print("Remis: "+kursremisStr)
-                print("Drużyna 2: "+druzyna2[0])
-                print("Drużyna 2 kurs: "+druzyna2[1])
+                print("Drużyna 1: "+druzyna1Nazwa)
+                print("Druzyna 1 kurs: "+str(druzyna1Kurs))
+                print("Remis: "+str(KursRemis))
+                print("Drużyna 2: "+druzyna2Nazwa)
+                print("Drużyna 2 kurs: "+str(druzyna2Kurs))
                 
                 wyniki.append({'druzyna1':druzyna1Nazwa,'kursdruzyna1':druzyna1Kurs,'remis':KursRemis,'druzyna2':druzyna2Nazwa,'kursdruzyna2':druzyna2Kurs})
+<<<<<<< HEAD
     return wyniki
  else:
      print("Błąd: "+answer.status_code)
@@ -86,3 +88,11 @@ def scrapMatches(stsURLleuge,wyniki=[]):
 #wyn=scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6480&league=15905&t=1558998795",wyniki=[])
 #with open('pilka.txt', 'w') as outfile:  
 #    json.dump(wyn, outfile)
+=======
+        return wyniki
+ else:
+     print("Błąd: "+answer.status_code)
+     
+
+scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6502&league=74203&t=1557935420")
+>>>>>>> 9312bc04e520adc526ee981380c3471c188e4345

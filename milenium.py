@@ -2,7 +2,9 @@ from selenium import webdriver
 import time
 from bs4 import BeautifulSoup
 import database
-database.test()
+
+bookie = "Milenium"
+
 driver = webdriver.Firefox()
 driver.get('https://www.milenium.pl/zaklady-bukmacherskie')
 time.sleep(2)
@@ -47,7 +49,7 @@ for e in element:
             dash = league.find('-')
             league = league[dash+1:colon].lstrip()
             print(league)
-            database.Milenium_leagues_entry(counter, league)
+            database.insert_league(bookie, counter, league)
             for match, odds in zip(match_container, odds_container):
                 dash = match.text.find('-')
                 t1 = match.text[:dash]
@@ -56,7 +58,7 @@ for e in element:
                 if space>0:
                     t2 = t2[:space]
                 print(t1 + ' - ' + t2)
-                database.Milenium_match_entry(matchcounter, t1, t2)
+                database.insert_match(bookie, matchcounter, t1, t2)
                 matchcounter = matchcounter + 1
                 trueodds = odds.find_all('a')
                 if len(trueodds) == 6:
@@ -73,9 +75,9 @@ for e in element:
                     da = lastodds[4]
                     ha = lastodds[5]
                     print(home + ' ' + draw + ' ' + away + ' ' + hd + ' ' + da + ' ' + ha + ' ')
-                    database.Milenium_odds_data_entry(matchcounter, home, draw, away, hd, da, ha, league)
+                    database.insert_odds(id, matchcounter, league, home, draw, away, hd, da, ha)
                 else:
-                    database.Milenium_league_delete(str(counter))
+                    database.delete_league(bookie, str(counter))
                     matchcounter = matchcounter - 1
                     break
             print(counter)

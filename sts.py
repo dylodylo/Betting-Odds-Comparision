@@ -83,13 +83,24 @@ def scrapMatches(stsURLleuge,wyniki=[]):
      return None
 
 
+
+def startscrappingSTS():
+    linkiwszystkichlig=[]
+    wszystkiekursy=[]
+    linkiwszystkichlig=getAllLaguesLinks([])
+    for url in linkiwszystkichlig:
+        wszystkiekursy.append(scrapMatches(url,[]))
+    with open('pilka.txt', 'w') as outfile:  
+        json.dump(wszystkiekursy, outfile)
+
+startscrappingSTS()
+
+
+
 #Przykład wykorzystania dla ligi mistrzów
 #wyn=scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6480&league=15905&t=1558998795",wyniki=[])
 #with open('pilka.txt', 'w') as outfile:  
-#    json.dump(wyn, outfile)
 #Przykład dla ligi mistrzów zaciągnięcie kursów
 #wyn=scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6480&league=15905&t=1558998795",wyniki=[])
-#with open('pilka.txt', 'w') as outfile:  
 #Przykład dla ligi mistrzów zaciągnięcie kursów
-#wyn=scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6480&league=15905&t=1558998795",wyniki=[])
 #with open('pilka.txt', 'w') as outfile:  

@@ -17,6 +17,13 @@ def add_numbers():
     wyn=cur.fetchall()
     return jsonify(wyn)
 
+@app.route('/bundesliga')
+def add_numbers():
+    cur=get_db().cursor() 
+    cur.execute("select t1,t2,jed,X,dwa,jx,Xd,jd FROM (select * FROM Fortuna_match_odds WHERE Fortuna_match_odds.league_id=25 )AS F Inner join Fortuna_matches  On F.id = Fortuna_matches.id  ")
+    wyn=cur.fetchall()
+    return jsonify(wyn)
+
 
 
 #sqlliteconnecting

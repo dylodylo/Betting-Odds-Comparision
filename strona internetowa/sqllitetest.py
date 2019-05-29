@@ -2,7 +2,7 @@
  
 import sqlite3
 from sqlite3 import Error
- 
+from flask import jsonify
  
 def create_connection(db_file):
     """ create a database connection to the SQLite database
@@ -26,13 +26,13 @@ def select_all_leagues(conn):
     :return:
     """
     cur = conn.cursor()
-    cur.execute("select * from Fortuna_leagues")
+    cur.execute("select t1,t2,jed,X,dwa,jx,Xd,jd FROM (select * FROM Fortuna_match_odds WHERE Fortuna_match_odds.league_id=25 )AS F Inner join Fortuna_matches  On F.id = Fortuna_matches.id  ")
  
     rows = cur.fetchall()
  
-    for row in rows:
-        print(row)
- 
+
+    print(jsonify(rows))
+
  
 def select_task_by_priority(conn, priority):
     """
@@ -48,10 +48,15 @@ def select_task_by_priority(conn, priority):
  
     for row in rows:
         print(row)
+
+
+
+
+    
  
  
 def main():
-    database = "C:\sqlite\db\bazadanych.db"
+    database = "bazadanych.db"
  
     # create a database connection
     conn = create_connection(database)

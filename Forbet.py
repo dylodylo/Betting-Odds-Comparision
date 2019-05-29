@@ -30,7 +30,7 @@ class League_Fortuna:
     def load_league(self):
         page_link = self.league_site
         # fetch the content from url
-        page_response = requests.get(page_link, timeout=5)
+        page_response = requests.get(page_link, timeout=10)
         # parse html
         page_content = BeautifulSoup(page_response.content, "html.parser")
 
@@ -51,7 +51,7 @@ def load_leagues():
     counter = 0
     page_link = 'https://www.iforbet.pl/zaklady-bukmacherskie'
     # fetch the content from url
-    page_response = requests.get(page_link, timeout=5)
+    page_response = requests.get(page_link, timeout=10)
     # parse html
     page_content = BeautifulSoup(page_response.content, "html.parser")
     sports_container = page_content('div', id='cat-1')

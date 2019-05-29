@@ -20,7 +20,8 @@ class League_Fortuna(object):
     def load_league(self):
         page_link = self.league_site
         # fetch the content from url
-        page_response = requests.get(page_link, proxies=proxy.get_actual_proxy())
+        # page_response = requests.get(page_link, proxies=proxy.get_actual_proxy())
+        page_response = requests.get(page_link)
         # parse html
         page_content = BeautifulSoup(page_response.content, "html.parser")
 

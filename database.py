@@ -19,15 +19,17 @@ def create_matches_table(bookie):
 
 
 def delete_matches_table(bookie):
-    c.execute("DROP TABLE IF EXISTS " + bookie +'_matches')
+    c.execute("DROP TABLE IF EXISTS " + bookie + '_matches')
 
 
 def create_match_odds_table(bookie):
-    c.execute('CREATE TABLE IF NOT EXISTS ' + bookie + 'match_odds(id INT PRIMARY KEY, home FLOAT, draw FLOAT, away FLOAT, hd FLOAT, da FLOAT, ha FLOAT, league_id INT, FOREIGN KEY(league_id) REFERENCES Fortuna_leagues(id))')
+    c.execute('CREATE TABLE IF NOT EXISTS ' + bookie + '_match_odds(id INT PRIMARY KEY, home FLOAT, draw FLOAT, '
+                                                       'away FLOAT, hd FLOAT, da FLOAT, ha FLOAT, league_id INT, '
+                                                       'FOREIGN KEY(league_id) REFERENCES ' + bookie + '_leagues(id))')
 
 
 def delete_match_odds_table(bookie):
-    c.execute("DROP TABLE IF EXISTS" + bookie + "_match_odds")
+    c.execute("DROP TABLE IF EXISTS " + bookie + "_match_odds")
 
 
 def create_all_fortuna_tables():
@@ -132,7 +134,7 @@ def insert_match(bookie, id, t1, t2):
 
 def delete_league(bookie, id):
     try:
-        c.execute("DELETE FROM " + bookie + "_leagues WHERE id= (?)", (id))
+        c.execute("DELETE FROM " + bookie + "_leagues WHERE id= (?)", (id,))
     except sqlite3.IntegrityError as ie:
         print("blad z dodaniem lig")
     conn.commit()

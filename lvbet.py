@@ -141,9 +141,12 @@ def get_driver():
     return driver
 
 
-driver = get_driver()
-page_content = BeautifulSoup(driver.page_source, "html.parser")
-sports_container = page_content('a', class_='col-d-3 col-mt-4 col-st-6 col-sm-12 ng-star-inserted')
-countries = load_countries(sports_container)
-load_leagues(countries, driver)
-load_matches(driver)
+def scrap():
+    driver = get_driver()
+    driver.get('https://lvbet.pl/pl/zaklady-bukmacherskie/5/pilka-nozna')
+    page_content = BeautifulSoup(driver.page_source, "html.parser")
+    sports_container = page_content('a', class_='col-d-3 col-mt-4 col-st-6 col-sm-12 ng-star-inserted')
+    countries = load_countries(sports_container)
+    load_leagues(countries, driver)
+    load_matches(driver)
+    driver.close()

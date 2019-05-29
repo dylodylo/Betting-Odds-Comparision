@@ -93,7 +93,7 @@
                </button>
                <div class="dropdown-menu" aria-labelledby="listaligszybkidostep">
                  <a id="ligamistrzow"class="dropdown-item" onclick="cleartable()" >Liga mistrzów</a>
-                 <a id="ekstraklasa" class="dropdown-item" onclick="cleartable()">Ekstraklasa</a>
+                 <a id="mistrzostwaeuropy" class="dropdown-item" onclick="cleartable()">Mistrzostwa Europy</a>
                  <a id="copaamerica" class="dropdown-item" onclick="cleartable()">Copa America</a>
                </div>
             </div>
@@ -220,6 +220,38 @@
      });
    });
  </script>
+<!--Copa america-->
+<script type=text/javascript>
+   $(function() {
+     $('a#copaamerica').bind('click', function() {
+       $.getJSON('/copaamerica', function(data) {
+         
+         let table = document.querySelector("table");
+         let listkeys = Object.keys(data[0]);
+         generateTableHead2(table);
+         generateTable(table, data);        
+         //alert("dajem siem kliknonc");
+       });
+       return false;
+     });
+   });
+ </script>
+<!--Mistrzostwa europy-->
+<script type=text/javascript>
+   $(function() {
+     $('a#mistrzostwaeuropy').bind('click', function() {
+       $.getJSON('/mistrzostwaeuropy', function(data) {
+         
+         let table = document.querySelector("table");
+         let listkeys = Object.keys(data[0]);
+         generateTableHead2(table);
+         generateTable(table, data);        
+         //alert("dajem siem kliknonc");
+       });
+       return false;
+     });
+   });
+ </script>
 
       <script>
          var matchdata = JSON.parse('{{ jsonmatch | tojson | safe}}');
@@ -239,7 +271,7 @@
          function generateTableHead2(table) {
            let thead = table.createTHead();
            let row = thead.insertRow();
-           let tablehead=["Drużyna 1","Drużyna 2","Kurs na drużynę 1","Remis","Kurs na drużynę 2","jx","jd","id"]
+           let tablehead=["Drużyna 1","Drużyna 2","Kurs na drużynę 1","Remis","Kurs na drużynę 2","jx","jd","id","źródło"]
            for (let key of tablehead) {
              let th = document.createElement("th");
              let text = document.createTextNode(key);

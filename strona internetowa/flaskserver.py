@@ -11,20 +11,27 @@ def home():
     return render_template("homepage.html", jsonmatch=jsonmatch)
 
 @app.route('/liga-mistrzow')
-def add_numbers():
+def ligamistrzow():
+    cur=get_db().cursor() 
+    cur.execute("select t1,t2,jed,X,dwa,jx,Xd,jd FROM (select * FROM Fortuna_match_odds WHERE Fortuna_match_odds.league_id=21 )AS F Inner join Fortuna_matches  On F.id = Fortuna_matches.id  ")
+    wyn=cur.fetchall()
+    return jsonify(wyn)
+
+@app.route('/copaamerica')
+def copaamerica():
     cur=get_db().cursor() 
     cur.execute("select t1,t2,jed,X,dwa,jx,Xd,jd FROM (select * FROM Fortuna_match_odds WHERE Fortuna_match_odds.league_id=25 )AS F Inner join Fortuna_matches  On F.id = Fortuna_matches.id  ")
     wyn=cur.fetchall()
     return jsonify(wyn)
 
-@app.route('/bundesliga')
-def add_numbers():
+
+
+@app.route('/mistrzostwaeuropy')
+def mistrzostwaeuropy():
     cur=get_db().cursor() 
-    cur.execute("select t1,t2,jed,X,dwa,jx,Xd,jd FROM (select * FROM Fortuna_match_odds WHERE Fortuna_match_odds.league_id=25 )AS F Inner join Fortuna_matches  On F.id = Fortuna_matches.id  ")
+    cur.execute("select t1,t2,jed,X,dwa,jx,Xd,jd FROM (select * FROM Lvbet_match_odds WHERE Lvbet_match_odds.league_id=0 )AS F Inner join Lvbet_matches  On F.id = Lvbet_matches.id ")
     wyn=cur.fetchall()
     return jsonify(wyn)
-
-
 
 #sqlliteconnecting
 

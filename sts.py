@@ -88,10 +88,15 @@ def startscrappingSTS():
     linkiwszystkichlig=[]
     wszystkiekursy=[]
     linkiwszystkichlig=getAllLaguesLinks([])
-    for url in linkiwszystkichlig:
-        wszystkiekursy.append(scrapMatches(url,[]))
-    with open('pilka.txt', 'w') as outfile:  
-        json.dump(wszystkiekursy, outfile)
+    if linkiwszystkichlig == []:
+        for url in linkiwszystkichlig:
+            wszystkiekursy.append(scrapMatches(url,[]))
+        with open('pilka.txt', 'w') as outfile:  
+            json.dump(wszystkiekursy, outfile)
+    else:
+        "Błąd scrapowania linków"
+
+startscrappingSTS()
 
 
 

@@ -2,7 +2,7 @@
 import requests
 import re
 import json
-
+import database
 #Scraping Ekstraklasa STS-website
 stsURLleuge="https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6502&league=74203&t=1556807180"
 
@@ -28,6 +28,7 @@ def getAllLaguesLinks(allLinkstoLague=[]):
             names = re.findall(r'league_[0,1,2,3,4,5,6,7,8,9,0]*',str(soup2) )
             for name in names:                
                 allLinkstoLague.append({'nazwa':soup2.find(id=str(name)).a.text,'link':soup2.find(id=str(name)).a.get('href')})
+                #database.insert_league()
                 #print(soup2.find(id=str(name)).a.get('href'))
      return allLinkstoLague
     else:
@@ -77,6 +78,8 @@ def scrapMatches(stsURLleuge,wyniki=[]):
                 print("Drużyna 2 kurs: "+str(druzyna2Kurs))
                 
                 wyniki.append({'druzyna1':druzyna1Nazwa,'kursdruzyna1':druzyna1Kurs,'remis':KursRemis,'druzyna2':druzyna2Nazwa,'kursdruzyna2':druzyna2Kurs})
+                #database.insert_match(id, druzyna1Nazwa, druzyna2Nazwa)
+                #database.insert_odds('Sts', counter, leagueid, )
     return wyniki
  else:
      print("Błąd: "+answer.status_code)

@@ -93,7 +93,7 @@ def startscrappingSTS():
     with open('pilka.txt', 'w') as outfile:  
         json.dump(wszystkiekursy, outfile)
 
-startscrappingSTS()
+
 
 
 

@@ -7,10 +7,10 @@ import json
 stsURLleuge="https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6502&league=74203&t=1556807180"
 
 #zwraca tablicę linków dla wszystkich możliwych lig piłkarskich ze wszystkich krajów
-def getAllLinks(allLinkstoLeuge=[]):
+def getAllLaguesLinks(allLinkstoLague=[]):
     stsURLstronaglowna="https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&t=1557777401" 
     leugesLinks=[]
-    allLinkstoLeuge=[]
+    allLinkstoLague=[]
     x=0
     answer=requests.get(stsURLstronaglowna)
     if answer.status_code==200:
@@ -27,13 +27,13 @@ def getAllLinks(allLinkstoLeuge=[]):
             soup2=BeautifulSoup(answer2.content,'html.parser')
             names = re.findall(r'league_[0,1,2,3,4,5,6,7,8,9,0]*',str(soup2) )
             for name in names:                
-                allLinkstoLeuge.append({'nazwa':soup2.find(id=str(name)).a.text,'link':soup2.find(id=str(name)).a.get('href')})
+                allLinkstoLague.append({'nazwa':soup2.find(id=str(name)).a.text,'link':soup2.find(id=str(name)).a.get('href')})
                 #print(soup2.find(id=str(name)).a.get('href'))
-     return allLinkstoLeuge
+     return allLinkstoLague
     else:
         print('blad')
 
-#scrapowanie kursów ze strony dla danego linku
+#scrapowanie kursów ze strony dla danego linku ligi
 def scrapMatches(stsURLleuge,wyniki=[]):
  wyniki=[]
  answer=requests.get(stsURLleuge)
@@ -77,22 +77,13 @@ def scrapMatches(stsURLleuge,wyniki=[]):
                 print("Drużyna 2 kurs: "+str(druzyna2Kurs))
                 
                 wyniki.append({'druzyna1':druzyna1Nazwa,'kursdruzyna1':druzyna1Kurs,'remis':KursRemis,'druzyna2':druzyna2Nazwa,'kursdruzyna2':druzyna2Kurs})
-<<<<<<< HEAD
     return wyniki
  else:
      print("Błąd: "+answer.status_code)
      return None
 
 
-#Przykład dla ligi mistrzów
+#Przykład wykorzystania dla ligi mistrzów
 #wyn=scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6480&league=15905&t=1558998795",wyniki=[])
 #with open('pilka.txt', 'w') as outfile:  
 #    json.dump(wyn, outfile)
-=======
-        return wyniki
- else:
-     print("Błąd: "+answer.status_code)
-     
-
-scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6502&league=74203&t=1557935420")
->>>>>>> 9312bc04e520adc526ee981380c3471c188e4345

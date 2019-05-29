@@ -90,3 +90,6 @@ def scrapMatches(stsURLleuge,wyniki=[]):
 #Przykład dla ligi mistrzów zaciągnięcie kursów
 #wyn=scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6480&league=15905&t=1558998795",wyniki=[])
 #with open('pilka.txt', 'w') as outfile:  
+#Przykład dla ligi mistrzów zaciągnięcie kursów
+#wyn=scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6480&league=15905&t=1558998795",wyniki=[])
+#with open('pilka.txt', 'w') as outfile:  

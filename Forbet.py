@@ -5,11 +5,15 @@ import requests
 import database
 import unicodedata
 
+bookie = "Forbet"
+
+
 def shave_marks(txt):
     """This method removes all diacritic marks from the given string"""
     norm_txt = unicodedata.normalize('NFD', txt)
     shaved = ''.join(c for c in norm_txt if not unicodedata.combining(c))
     return unicodedata.normalize('NFC', shaved)
+
 
 class League_Fortuna:
     league_id : int
@@ -21,11 +25,12 @@ class League_Fortuna:
         self.league_site = site
         return
 
+
 #ładuje stronę danej ligi
     def load_league(self):
         page_link = self.league_site
         # fetch the content from url
-        page_response = requests.get(page_link, timeout=5)
+        page_response = requests.get(page_link, timeout=10)
         # parse html
         page_content = BeautifulSoup(page_response.content, "html.parser")
 
@@ -46,7 +51,7 @@ def load_leagues():
     counter = 0
     page_link = 'https://www.iforbet.pl/zaklady-bukmacherskie'
     # fetch the content from url
-    page_response = requests.get(page_link, timeout=5)
+    page_response = requests.get(page_link, timeout=10)
     # parse html
     page_content = BeautifulSoup(page_response.content, "html.parser")
     sports_container = page_content('div', id='cat-1')
@@ -63,7 +68,7 @@ def load_leagues():
         a_league_name = "league " + str(counter)
         a = League_Fortuna(a_league_id, a_league_name, a_league_site);
         if a.load_league() > 0:
-            database.Forbet_leagues_entry(a_league_id, a_league_site, a_league_name)
+            database.insert_league(bookie, a_league_id, a_league_name, a_league_site)
         counter = counter + 1
 
     '''b = 0
@@ -123,7 +128,7 @@ def load_matches_odds(match_containers, league_id):
             else:
                 matches[which_match].odd_2 = match_containers[counter]['data-outcomeodds']
                 print(matches[which_match].odd_1 + '   ' + matches[which_match].odd_X + '   ' + matches[which_match].odd_2)
-                database.Forbet_odds_data_entry(matches[which_match].match_id, matches[which_match].odd_1, matches[which_match].odd_X, matches[which_match].odd_2, league_id)
-                database.Forbet_match_entry(matches[which_match].match_id, matches[which_match].team_1, matches[which_match].team_2)
+                database.insert_odds(bookie, matches[which_match].match_id, league_id, matches[which_match].odd_1, matches[which_match].odd_X, matches[which_match].odd_2)
+                database.insert_match(bookie, matches[which_match].match_id, matches[which_match].team_1, matches[which_match].team_2)
         counter = counter+1
     return

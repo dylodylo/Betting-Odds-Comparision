@@ -5,6 +5,8 @@ import time
 import unidecode
 import database
 
+bookie = "Lvbet"
+
 
 def load_countries(sports_container):
     countries = []
@@ -32,12 +34,12 @@ def load_leagues(countries, driver):
                 a_league_id = counter
                 a_league_name = "league " + str(counter)
                 country = Fortuna.League_Fortuna(a_league_id, a_league_name, a_league_site)
-                database.Lvbet_leagues_entry(a_league_id, a_league_site, a_league_name)
+                database.insert_league(bookie, a_league_id, a_league_name, a_league_site)
                 counter = counter + 1
 
 
 def load_matches(driver):
-    football_leagues = database.get_leagues()
+    football_leagues = database.get_leagues(bookie)
     counter = 0
 
     for x in football_leagues:
@@ -99,7 +101,7 @@ def load_matches(driver):
                 t1 = teams[:dash - 2].lstrip()
                 t2 = teams[dash + 2:].rstrip()
                 if t1 != '':
-                    database.Lvbet_match_entry(counter, t1, t2)
+                    database.insert_match(bookie, counter, t1, t2)
                     print(t1 + ' - ' + t2)
                 try:
                     oddsarray = odds[0].text.split(' ')
@@ -121,14 +123,14 @@ def load_matches(driver):
                     try:
                         print(oddsarray[1] + ' ' + oddsarray[3] + ' ' + oddsarray[5] + ' ' + oddsarray2[1] + ' ' +
                               oddsarray2[3] + ' ' + oddsarray2[5])
-                        database.Lvbet_odds_data_entry(counter, oddsarray[1], oddsarray[3], oddsarray[5], oddsarray2[1],
-                                                       oddsarray2[3], oddsarray2[5], x[0])
+                        database.insert_odds(bookie, counter, x[0], oddsarray[1], oddsarray[3], oddsarray[5],
+                                             oddsarray2[1], oddsarray2[3], oddsarray2[5])
                     except:
                         print("Problem z listami odds")
                 else:
                     try:
                         print(oddsarray[1] + ' ' + oddsarray[3] + ' ' + oddsarray[5])
-                        database.Lvbet_odds_data_entry_not_full(counter, oddsarray[1], oddsarray[3], oddsarray[5], x[0])
+                        database.insert_odds(bookie, counter, x[0], oddsarray[1], oddsarray[3], oddsarray[5])
                     except:
                         print("Problem z listami odds bez odds2")
                 counter = counter + 1
@@ -139,9 +141,12 @@ def get_driver():
     return driver
 
 
-driver = get_driver()
-page_content = BeautifulSoup(driver.page_source, "html.parser")
-sports_container = page_content('a', class_='col-d-3 col-mt-4 col-st-6 col-sm-12 ng-star-inserted')
-countries = load_countries(sports_container)
-load_leagues(countries, driver)
-load_matches(driver)
+def scrap():
+    driver = get_driver()
+    driver.get('https://lvbet.pl/pl/zaklady-bukmacherskie/5/pilka-nozna')
+    page_content = BeautifulSoup(driver.page_source, "html.parser")
+    sports_container = page_content('a', class_='col-d-3 col-mt-4 col-st-6 col-sm-12 ng-star-inserted')
+    countries = load_countries(sports_container)
+    load_leagues(countries, driver)
+    load_matches(driver)
+    driver.close()

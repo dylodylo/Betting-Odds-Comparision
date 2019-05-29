@@ -5,142 +5,146 @@ conn = sqlite3.connect('bazadanych.db')
 
 c = conn.cursor()
 
-def delete():
-    c.execute("DROP TABLE IF EXISTS Lvbet_matches")
-    c.execute("DROP TABLE IF EXISTS Lvbet_match_odds")
-    c.execute(
-        'CREATE TABLE IF NOT EXISTS Lvbet_match_odds(id INT PRIMARY KEY, jed FLOAT, X FLOAT, dwa FLOAT, jX FLOAT, Xd FLOAT, jd FLOAT, league_id INT, FOREIGN KEY(league_id) REFERENCES Fortuna_leagues(id))')
-    c.execute('CREATE TABLE IF NOT EXISTS Lvbet_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
-def get_leagues():
-    query = "SELECT * FROM Lvbet_leagues"
-    c.execute(query)
+
+def create_leagues_table(bookie):
+    c.execute('CREATE TABLE IF NOT EXISTS ' + bookie+'_leagues(id INT PRIMARY KEY, site STRING, name STRING)')
+
+
+def delete_leagues_table(bookie):
+    c.execute("DROP TABLE IF EXISTS " + bookie + '_leagues')
+
+
+def create_matches_table(bookie):
+    c.execute('CREATE TABLE IF NOT EXISTS ' + bookie + '_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
+
+
+def delete_matches_table(bookie):
+    c.execute("DROP TABLE IF EXISTS " + bookie + '_matches')
+
+
+def create_match_odds_table(bookie):
+    c.execute('CREATE TABLE IF NOT EXISTS ' + bookie + '_match_odds(id INT PRIMARY KEY, home FLOAT, draw FLOAT, '
+                                                       'away FLOAT, hd FLOAT, da FLOAT, ha FLOAT, league_id INT, '
+                                                       'FOREIGN KEY(league_id) REFERENCES ' + bookie + '_leagues(id))')
+
+
+def delete_match_odds_table(bookie):
+    c.execute("DROP TABLE IF EXISTS " + bookie + "_match_odds")
+
+
+def create_all_fortuna_tables():
+    create_leagues_table('Fortuna')
+    create_matches_table('Fortuna')
+    create_match_odds_table('Fortuna')
+
+
+def delete_all_fortuna_tables():
+    delete_leagues_table('Fortuna')
+    delete_matches_table('Fortuna')
+    delete_match_odds_table('Fortuna')
+
+
+def create_all_forbet_tables():
+    create_leagues_table('Forbet')
+    create_matches_table('Forbet')
+    create_match_odds_table('Forbet')
+
+
+def delete_all_forbet_tables():
+    delete_leagues_table('Forbet')
+    delete_matches_table('Forbet')
+    delete_match_odds_table('Forbet')
+
+
+def create_all_lvbet_tables():
+    create_leagues_table('Lvbet')
+    create_matches_table('Lvbet')
+    create_match_odds_table('Lvbet')
+
+
+def delete_all_lvbet_tables():
+    delete_leagues_table('Lvbet')
+    delete_matches_table('Lvbet')
+    delete_match_odds_table('Lvbet')
+
+
+def create_all_milenium_tables():
+    create_leagues_table('Milenium')
+    create_matches_table('Milenium')
+    create_match_odds_table('Milenium')
+
+
+def delete_all_milenium_tables():
+    delete_leagues_table('Milenium')
+    delete_matches_table('Milenium')
+    delete_match_odds_table('Milenium')
+
+
+def create_all_sts_tables():
+    create_leagues_table('Sts')
+    create_matches_table('Sts')
+    create_match_odds_table('Sts')
+
+
+def delete_all_sts_tables():
+    delete_leagues_table('Sts')
+    delete_matches_table('Sts')
+    delete_match_odds_table('Sts')
+
+
+def create_all_tables(): #tworzenie wszystkich tabel
+    create_all_fortuna_tables()
+    create_all_forbet_tables()
+    create_all_lvbet_tables()
+    create_all_milenium_tables()
+    create_all_sts_tables()
+
+
+def delete_all_tables():
+    delete_all_fortuna_tables()
+    delete_all_forbet_tables()
+    delete_all_lvbet_tables()
+    delete_all_milenium_tables()
+    delete_all_sts_tables()
+
+
+def insert_league(bookie, id, name, site =''):
+    try:
+        c.execute("INSERT INTO " + bookie + "_leagues VALUES (?, ?, ?)", (id, site, name))
+    except sqlite3.IntegrityError as ie:
+        print("blad z dodaniem lig")
+    conn.commit()
+
+
+def insert_odds(bookie, id, league_id, odd1, oddx, odd2, odd1x = 0, oddx2 = 0, odd12 = 0):
+    try:
+        c.execute("INSERT INTO " + bookie + "_match_odds VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (id, odd1, oddx, odd2, odd1x, oddx2, odd12, league_id))
+    except sqlite3.IntegrityError as ie:
+        pass
+    conn.commit()
+
+
+def insert_match(bookie, id, t1, t2):
+    try:
+        c.execute('INSERT INTO ' + bookie + '_matches VALUES (?, ?, ?)', (id, t1, t2))
+    except sqlite3.IntegrityError as ie:
+        pass
+    conn.commit()
+
+
+def delete_league(bookie, id):
+    try:
+        c.execute("DELETE FROM " + bookie + "_leagues WHERE id= (?)", (id,))
+    except sqlite3.IntegrityError as ie:
+        print("blad z dodaniem lig")
+    conn.commit()
+
+
+def get_leagues(bookie):
+    c.execute("SELECT * FROM " + bookie + "_leagues")
     result = c.fetchall()
     return result
 
-def create_table(): #tworzenie wszystkich tabel
-    c.execute('CREATE TABLE IF NOT EXISTS Fortuna_leagues(id INT PRIMARY KEY, site STRING, name STRING)')
-    c.execute('CREATE TABLE IF NOT EXISTS Fortuna_match_odds(id INT PRIMARY KEY, jed FLOAT, X FLOAT, dwa FLOAT, jX FLOAT, Xd FLOAT, jd FLOAT, league_id INT, FOREIGN KEY(league_id) REFERENCES Fortuna_leagues(id))')
-    c.execute('CREATE TABLE IF NOT EXISTS Fortuna_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
-    c.execute('CREATE TABLE IF NOT EXISTS Forbet_leagues(id INT PRIMARY KEY, site STRING, name STRING)')
-    c.execute('CREATE TABLE IF NOT EXISTS Forbet_match_odds(id INT PRIMARY KEY, jed FLOAT, X FLOAT, dwa FLOAT, jX FLOAT, Xd FLOAT, jd FLOAT, league_id INT, FOREIGN KEY(league_id) REFERENCES Forbet_leagues(id))')
-    c.execute('CREATE TABLE IF NOT EXISTS Forbet_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
-    c.execute('CREATE TABLE IF NOT EXISTS Lvbet_leagues(id INT PRIMARY KEY, site STRING, name STRING)')
-    c.execute('CREATE TABLE IF NOT EXISTS Lvbet_match_odds(id INT PRIMARY KEY, jed FLOAT, X FLOAT, dwa FLOAT, jX FLOAT, Xd FLOAT, jd FLOAT, league_id INT, FOREIGN KEY(league_id) REFERENCES Fortuna_leagues(id))')
-    c.execute('CREATE TABLE IF NOT EXISTS Lvbet_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
-    c.execute('CREATE TABLE IF NOT EXISTS Sts_leagues(id INT PRIMARY KEY, site STRING, name STRING)')
-    c.execute('CREATE TABLE IF NOT EXISTS Sts_match_odds(id INT PRIMARY KEY, jed FLOAT, X FLOAT, dwa FLOAT, jX FLOAT, Xd FLOAT, jd FLOAT, league_id INT, FOREIGN KEY(league_id) REFERENCES Fortuna_leagues(id))')
-    c.execute('CREATE TABLE IF NOT EXISTS Sts_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
-
-def data_entry():
-    c.execute("INSERT INTO match VALUES(1, 2.5, 2.4, 3.2, 1.4, 1.3, 1.2)")
-    conn.commit()
-    c.close()
-    conn.close()
-
-def insert_Fortuna_leagues(id, site, name):
-    try:
-        c.execute("INSERT INTO Fortuna_leagues VALUES (?, ?, ?)", (id, site, name))
-    except sqlite3.IntegrityError as ie:
-        print("blad z dodaniem lig")
-    conn.commit()
-
-def Fortuna_odds_data_entry(id, odd1, oddx, odd2, odd1x, oddx2, odd12, league_id):
-    try:
-        c.execute("INSERT INTO Fortuna_match_odds VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (id, odd1, oddx, odd2, odd1x, oddx2, odd12, league_id))
-    except sqlite3.IntegrityError as ie:
-        pass
-    conn.commit()
-
-def Fortuna_match_entry(id, t1, t2):
-    try:
-        c.execute('INSERT INTO Fortuna_matches VALUES (?, ?, ?)', (id, t1, t2))
-    except sqlite3.IntegrityError as ie:
-        pass
-    conn.commit()
-
-def Forbet_leagues_entry(id, site, name):
-    try:
-        c.execute("INSERT INTO Forbet_leagues VALUES (?, ?, ?)", (id, site, name))
-    except sqlite3.IntegrityError as ie:
-        print("blad z dodaniem lig")
-    conn.commit()
-
-def Forbet_odds_data_entry(id, odd1, oddx, odd2, league_id):
-    try:
-        c.execute("INSERT INTO Forbet_match_odds VALUES (?, ?, ?, ?, 0, 0, 0, ?)", (id, odd1, oddx, odd2, league_id))
-    except sqlite3.IntegrityError as ie:
-        pass
-    conn.commit()
-
-def Forbet_match_entry(id, t1, t2):
-    try:
-        c.execute('INSERT INTO Forbet_matches VALUES (?, ?, ?)', (id, t1, t2))
-    except sqlite3.IntegrityError as ie:
-        pass
-    conn.commit()
-
-def Lvbet_leagues_entry(id, site, name):
-    try:
-        c.execute("INSERT INTO Lvbet_leagues VALUES (?, ?, ?)", (id, site, name))
-    except sqlite3.IntegrityError as ie:
-        print("blad z dodaniem lig")
-    conn.commit()
-
-def Lvbet_odds_data_entry(id, odd1, oddx, odd2, odd1x, oddx2, odd12, league_id):
-    try:
-        c.execute("INSERT INTO Lvbet_match_odds VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (id, odd1, oddx, odd2, odd1x, oddx2, odd12, league_id))
-    except sqlite3.IntegrityError as ie:
-        pass
-    conn.commit()
-
-def Lvbet_odds_data_entry_not_full(id, odd1, oddx, odd2, league_id):
-    try:
-        c.execute("INSERT INTO Lvbet_match_odds VALUES (?, ?, ?, ?, 0, 0, 0, ?)", (id, odd1, oddx, odd2, league_id))
-    except sqlite3.IntegrityError as ie:
-        pass
-    conn.commit()
-
-def Lvbet_match_entry(id, t1, t2):
-    try:
-        c.execute('INSERT INTO Lvbet_matches VALUES (?, ?, ?)', (id, t1, t2))
-    except sqlite3.IntegrityError as ie:
-        pass
-    conn.commit()
-
-def Sts_leagues_entry(id, site, name):
-    try:
-        c.execute("INSERT INTO Sts_leagues VALUES (?, ?, ?)", (id, site, name))
-    except sqlite3.IntegrityError as ie:
-        print("blad z dodaniem lig")
-    conn.commit()
-
-def Sts_odds_data_entry(id, odd1, oddx, odd2, league_id):
-    try:
-        c.execute("INSERT INTO Sts_match_odds VALUES (?, ?, ?, ?, 0, 0, 0, ?)", (id, odd1, oddx, odd2, league_id))
-    except sqlite3.IntegrityError as ie:
-        pass
-    conn.commit()
-
-def Sts_match_entry(id, t1, t2):
-    try:
-        c.execute('INSERT INTO Sts_matches VALUES (?, ?, ?)', (id, t1, t2))
-    except sqlite3.IntegrityError as ie:
-        pass
-    conn.commit()
-
-def delete_table(): #usuwanie wszystkich tabel
-    c.execute("DROP TABLE IF EXISTS Fortuna_match_odds")
-    c.execute("DROP TABLE IF EXISTS Forbet_match_odds")
-    c.execute("DROP TABLE IF EXISTS Fortuna_matches")
-    c.execute("DROP TABLE IF EXISTS Forbet_matches")
-    c.execute("DROP TABLE IF EXISTS Fortuna_leagues")
-    c.execute("DROP TABLE IF EXISTS Forbet_leagues")
-    c.execute("DROP TABLE IF EXISTS Lvbet_matches")
-    c.execute("DROP TABLE IF EXISTS Lvbet_match_odds")
-    c.execute("DROP TABLE IF EXISTS Lvbet_leagues")
-    c.execute("DROP TABLE IF EXISTS Sts_matches")
-    c.execute("DROP TABLE IF EXISTS Sts_match_odds")
-    c.execute("DROP TABLE IF EXISTS Sts_leagues")
 
 #funkcja do umieszczania zespołów w tabeli
 def insert_teams():

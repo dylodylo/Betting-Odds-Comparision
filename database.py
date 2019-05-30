@@ -146,44 +146,82 @@ def get_leagues(bookie):
     return result
 
 
+def get_league_matches(bookie, league_name):
+    c.execute("SELECT t1, t2 FROM " + bookie + "_matches AS fm INNER JOIN " + bookie + "_match_odds AS fmo ON fmo.id = fm.id INNER JOIN " + bookie + "_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.name = (?)", (league_name,))
+    data = c.fetchall()
+    return data
+
+
+def get_match_odds(bookie, match_id):
+    c.execute("SELECT home, draw, away, hd, da, ha FROM " + bookie + "_match_odds WHERE id = (?)", (match_id,))
+    data = c.fetchall()
+    return data[0]
+
+
+def compare_odds(bookie, match_id, new_odds):
+    old_odds = get_match_odds(bookie, match_id)
+    if old_odds == new_odds:
+        return True
+    else:
+        return False
+
+
+def update_odds(bookie, match_id, home, draw, away, hd = 0, da = 0, ha = 0):
+    c.execute("UPDATE " + bookie + "_match_odds "
+              "SET home = (?), draw = (?), away = (?),hd = (?), da = (?), ha = (?) "
+              "WHERE id = (?)", (home, draw, away, hd, da, ha, match_id))
+    print("Kurs meczu " + str(match_id) + " zaktualizowany!")
+
+
+def is_match_in_db(match_id):
+    c.execute("SELECT * FROM Fortuna_match_odds WHERE ID = (?)", (match_id,))
+    data = c.fetchall()
+    if len(data) == 0:
+        return False
+    else:
+        return True
+
+
+
 #funkcja do umieszczania zespołów w tabeli
-def insert_teams():
-    c.execute("DROP TABLE IF EXISTS Teams")
-    c.execute("CREATE TABLE IF NOT EXISTS Teams(id INT_PRIMARY_KEY, fortuna_name STRING)")
-    c.execute("SELECT t1 FROM Fortuna_matches")
+def insert_teams(bookie):
+    c.execute("DROP TABLE IF EXISTS " + bookie + "_teams")
+    c.execute("CREATE TABLE IF NOT EXISTS " + bookie + "_teams(id INT_PRIMARY_KEY, " + bookie + "_name STRING)")
+    c.execute("SELECT t1 FROM " + bookie + "_matches")
     data = c.fetchall()
     i = 0
     for row in data:
-        row = str(row)[2:].rstrip("\',)")
-        c.execute("SELECT fortuna_name FROM Teams WHERE fortuna_name = '"+row+"'")
+        row = str(row)[2:].rstrip("\',)").rstrip('\"')
+        row = row.replace("'", "")
+        print(row)
+        c.execute("SELECT " + bookie + "_name FROM " + bookie + "_teams WHERE " + bookie + "_name = '"+row+"'")
         pom = c.fetchall()
         if  len(pom) > 0:
             pass
         else:
-            c.execute('INSERT INTO Teams (id, fortuna_name) VALUES (?,?)', (i, row))
+            c.execute('INSERT INTO ' + bookie + '_teams (id, ' + bookie + '_name) VALUES (?,?)', (i, row))
             i = i+1
-    c.execute("SELECT t2 FROM Fortuna_matches")
+    c.execute("SELECT t2 FROM " + bookie + "_matches")
     data = c.fetchall()
     for row in data:
         row = str(row)[2:].rstrip("\',)")
-        c.execute("SELECT fortuna_name FROM Teams WHERE fortuna_name = '"+row+"'")
+        c.execute("SELECT " + bookie + "_name FROM " + bookie + "_teams WHERE " + bookie + "_name = '"+row+"'")
         pom = c.fetchall()
         if  len(pom) > 0:
             pass
         else:
-            c.execute('INSERT INTO Teams (id, fortuna_name) VALUES (?,?)', (i, row))
+            c.execute('INSERT INTO ' + bookie + '_teams (id, ' + bookie + '_name) VALUES (?,?)', (i, row))
             i = i+1
     print(data)
     conn.commit()
 
-#funkcja do sprawdzania poprawności dodania lig
-def show_league_matches():
-    c.execute("SELECT t1, t2 FROM Fortuna_matches AS fm INNER JOIN Fortuna_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Fortuna_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.name = 'ekstraklasa'")
-    data = c.fetchall()
-    print(data)
-    c.execute("SELECT t1, t2 FROM Forbet_matches AS fm INNER JOIN Forbet_match_odds AS fmo ON fmo.id = fm.id INNER JOIN Forbet_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.name = 'league 0'")
-    data = c.fetchall()
-    print(data)
+
+def insert_all_teams():
+    insert_teams("Fortuna")
+    insert_teams("Forbet")
+    insert_teams("Lvbet")
+    insert_teams("Milenium")
+
 
 def match_leagues():
 

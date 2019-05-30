@@ -73,7 +73,7 @@ def load_leagues():
                     a = League_Fortuna(a_league_id, a_league_name, a_league_site)
                     #sprawdzamy, czy liczba meczów w lidze jest >0
                     if a.load_league() > 0:
-                        database.insert_league(bookie, a_league_id, a_league_site, a_league_name)
+                        database.insert_league(bookie, a_league_id, a_league_name, a_league_site)
                 counter = counter + 1
         return
 
@@ -141,9 +141,14 @@ def load_matches_odds( match_containers, odd_container, live_matches, league_id)
             matches[counter].odd_2X = odd_2X.strip('\n\r\n')
             matches[counter].odd_12 = odd_12.strip('\n\r\n')
             #zapis do bazy kursów (powiązanie z meczem po id)
-            database.insert_odds(bookie, matches[counter].match_id, league_id, odd_1, odd_X, odd_2, odd_1X, odd_2X, odd_12)
-            #zapis do bazy danych meczu (powiązanie z kursami po id)
-            database.insert_match(bookie, matches[counter].match_id, matches[counter].team1, matches[counter].team2)
+            if (database.is_match_in_db(matches[counter].match_id)):
+                if database.compare_odds("Fortuna", matches[counter].match_id, (matches[counter].odd_1,matches[counter].odd_X,matches[counter].odd_2,matches[counter].odd_1X,matches[counter].odd_2X, matches[counter].odd_12)) == False:
+                    database.update_odds("Fortuna", matches[counter].match_id, matches[counter].odd_1,matches[counter].odd_X,matches[counter].odd_2,matches[counter].odd_1X,matches[counter].odd_2X, matches[counter].odd_12)
+
+            else:
+                database.insert_odds(bookie, matches[counter].match_id, league_id, odd_1, odd_X, odd_2, odd_1X, odd_2X, odd_12)
+                #zapis do bazy danych meczu (powiązanie z kursami po id)
+                database.insert_match(bookie, matches[counter].match_id, matches[counter].team1, matches[counter].team2)
             print(matches[counter].odd_1 + '   ' + matches[counter].odd_X + '   ' + matches[counter].odd_2 + '   ' + matches[counter].odd_1X + '   ' + matches[counter].odd_2X + '   ' + matches[counter].odd_12)
             counter = counter+1
     return

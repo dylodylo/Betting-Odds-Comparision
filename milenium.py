@@ -77,7 +77,7 @@ def scrap():
                         da = lastodds[4]
                         ha = lastodds[5]
                         print(home + ' ' + draw + ' ' + away + ' ' + hd + ' ' + da + ' ' + ha + ' ')
-                        database.insert_odds(bookie, str(matchcounter), league, home, draw, away, hd, da, ha)
+                        database.insert_odds(bookie, str(matchcounter), counter, home, draw, away, hd, da, ha)
                     else:
                         database.delete_league(bookie, str(counter))
                         matchcounter = matchcounter - 1

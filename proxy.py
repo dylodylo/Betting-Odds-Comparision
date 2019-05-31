@@ -11,22 +11,26 @@ headers = {
             'Accept-Language': 'en-US,en;q=0.8',
             'Connection': 'keep-alive'
 }
-def get_actual_proxy():
+
+
+def get_actual_proxy(proxies, used_proxies):
     # we have to change proxy each time when we get banned
-    used_proxies = set()
-    print(used_proxies)
-    proxies = get_proxies()
+    if len(proxies) == 0:
+        proxies = get_proxies()
+    print('looking for new proxy')
     for proxy in proxies:
-        print('looking for new proxy')
         if try_proxy(proxy):
             if proxy not in used_proxies:
                 print('got new one')
                 actual_proxy = {
-            "http": 'http://'+proxy,
-            "https": 'http://'+proxy
-        }
-                return actual_proxy
-
+                "http": 'http://'+proxy,
+                "https": 'http://'+proxy
+                }
+                return (actual_proxy, used_proxies)
+        else:
+            used_proxies.append(proxy)
+            if len(proxies) == 0:
+                proxies = get_proxies()
 
 def try_proxy(proxy):
     try:
@@ -46,9 +50,10 @@ def try_proxy(proxy):
 def get_proxies():
     proxy_url = 'https://free-proxy-list.net/'
     soup = BeautifulSoup(requests.get(proxy_url).text, 'html.parser')
-    proxies = set()
+    proxies = []
     for proxy in soup.find(id='proxylisttable').tbody.find_all('tr'):
-        proxies.add(
+        proxies.append(
             f"{proxy.find_all('td')[0].string}:{proxy.find_all('td')[1].string}")
     return proxies
+
 

@@ -99,36 +99,24 @@ def load_matches_odds(match_containers, league_id):
     matches = []
     counter=0
 
-    while counter < len(match_containers):
-        which_match = 0  # pozwala na znalezienie meczu, ktory znajduje sie w liscie
-        multi_match_id = Match_Odds()
-        global find_match
-        find_match = False
-        for a in matches:
-            if str(a.match_id) == match_containers[counter].get('data-gameid'):
-                find_match = True
-                multi_match_id = a
-                break
-        if find_match == False:
-            matches.append(Match_Odds)
-            which_match = len(matches) - 1
-            print(match_containers[counter]['data-gameid'])
-            losowa_zmiena = match_containers[counter]['data-gameid']
-            matches[which_match].match_id = int(match_containers[counter]['data-gameid'])
-            print(match_containers[counter]['data-eventname'])
+    for index, match in enumerate(match_containers):
+        if index % 3 == 0:
+            print(match['data-gameid'])
+            match_id = int(match['data-gameid'])
+            print(match['data-eventname'])
             print('Kurs na \n' + '1' + '      ' + 'X' + '      ' + '2' + '      ' + '1X' + '      ' + '2X' + '      ' + '12')
-            matches[which_match].odd_1 = match_containers[counter]['data-outcomeodds']
+            home = match_containers[index]['data-outcomeodds']
             dash_position = str(match_containers[counter]['data-eventname']).find('-')
-            matches[which_match].team_1 = shave_marks(str(match_containers[counter]['data-eventname'])[:dash_position - 1])
-            matches[which_match].team_2 = shave_marks(str(match_containers[counter]['data-eventname'])[dash_position + 2:])
-        else:
-            which_match = matches.index(multi_match_id)
-            if match_containers[counter]['data-outcomename'] == 'X':
-                matches[which_match].odd_X = match_containers[counter]['data-outcomeodds']
+            team1 = str(match_containers[counter]['data-eventname'])[:dash_position - 1]
+            team2 = str(match_containers[counter]['data-eventname'])[dash_position + 2:]
+            draw = match_containers[index+1]['data-outcomeodds']
+            away = match_containers[index+2]['data-outcomeodds']
+            print(home + '   ' + draw + '   ' + away)
+            if database.is_match_in_db(match_id):
+                if not database.compare_odds(bookie, match_id, (home, draw, away)):
+                    database.update_odds(bookie, match_id, home, draw, away)
+
             else:
-                matches[which_match].odd_2 = match_containers[counter]['data-outcomeodds']
-                print(matches[which_match].odd_1 + '   ' + matches[which_match].odd_X + '   ' + matches[which_match].odd_2)
-                database.insert_odds(bookie, matches[which_match].match_id, league_id, matches[which_match].odd_1, matches[which_match].odd_X, matches[which_match].odd_2)
-                database.insert_match(bookie, matches[which_match].match_id, matches[which_match].team_1, matches[which_match].team_2)
-        counter = counter+1
-    return
+                database.insert_odds(bookie, match_id, league_id, home, draw, away)
+                #zapis do bazy danych meczu (powiązanie z kursami po id)
+                database.insert_match(bookie, match_id, team1, team2)

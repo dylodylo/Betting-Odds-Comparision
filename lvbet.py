@@ -30,11 +30,10 @@ def load_leagues(countries, driver):
             link_text = y.attrs['href']
             if link_text != '/pl/zaklady-bukmacherskie':
                 print('https://lvbet.pl' + link_text)
-                a_league_site = 'https://lvbet.pl' + link_text
-                a_league_id = counter
-                a_league_name = "league " + str(counter)
-                country = Fortuna.League_Fortuna(a_league_id, a_league_name, a_league_site)
-                database.insert_league(bookie, a_league_id, a_league_name, a_league_site)
+                league_site = 'https://lvbet.pl' + link_text
+                league_id = counter
+                league_name = "league " + str(counter)
+                database.insert_league(bookie, league_id, league_name, league_site)
                 counter = counter + 1
 
 
@@ -98,11 +97,11 @@ def load_matches(driver):
             teams = teams[0].text[slice + 2:]
             dash = teams.find('-')
             if (teams[:dash].lstrip() != teams[dash + 2:].rstrip()):  # wykluczenie nazw zakladow na zwyciezcow
-                t1 = teams[:dash - 2].lstrip()
-                t2 = teams[dash + 2:].rstrip()
-                if t1 != '':
-                    database.insert_match(bookie, counter, t1, t2)
-                    print(t1 + ' - ' + t2)
+                team1 = teams[:dash - 2].lstrip()
+                team2 = teams[dash + 2:].rstrip()
+                if team1 != '':
+                    database.insert_match(bookie, counter, team1, team2)
+                    print(team1 + ' - ' + team2)
                 try:
                     oddsarray = odds[0].text.split(' ')
                 except:
@@ -121,16 +120,37 @@ def load_matches(driver):
 
                 if oddsarray2 and oddsarray2 != ['']:
                     try:
-                        print(oddsarray[1] + ' ' + oddsarray[3] + ' ' + oddsarray[5] + ' ' + oddsarray2[1] + ' ' +
-                              oddsarray2[3] + ' ' + oddsarray2[5])
-                        database.insert_odds(bookie, counter, x[0], oddsarray[1], oddsarray[3], oddsarray[5],
-                                             oddsarray2[1], oddsarray2[3], oddsarray2[5])
+                        home = oddsarray[1]
+                        draw = oddsarray[3]
+                        away = oddsarray[5]
+                        hd = oddsarray2[1]
+                        da = oddsarray2[3]
+                        ha = oddsarray2[5]
+                        print(home + ' ' + draw + ' ' + away + ' ' + hd + ' ' + da + ' ' + ha)
+                        if database.is_match_in_db(counter):
+                            if not database.compare_odds(bookie, counter, (home, draw, away, hd, da, ha)):
+                                database.update_odds(bookie, counter, home, draw, away, hd, da, ha)
+
+                        else:
+                            database.insert_odds(bookie, counter, x[0], home, draw, away, hd, da, ha)
+                            # zapis do bazy danych meczu (powiązanie z kursami po id)
+                            database.insert_match(bookie, counter, team1, team2)
                     except:
                         print("Problem z listami odds")
                 else:
                     try:
-                        print(oddsarray[1] + ' ' + oddsarray[3] + ' ' + oddsarray[5])
-                        database.insert_odds(bookie, counter, x[0], oddsarray[1], oddsarray[3], oddsarray[5])
+                        home = oddsarray[1]
+                        draw = oddsarray[3]
+                        away = oddsarray[5]
+                        print(home + ' ' + draw + ' ' + away)
+                        if database.is_match_in_db(counter):
+                            if not database.compare_odds(bookie, counter, (home, draw, away)):
+                                database.update_odds(bookie, counter, home, draw, away)
+
+                        else:
+                            database.insert_odds(bookie, counter, x[0], home, draw, away)
+                            # zapis do bazy danych meczu (powiązanie z kursami po id)
+                            database.insert_match(bookie, counter, team1, team2)
                     except:
                         print("Problem z listami odds bez odds2")
                 counter = counter + 1

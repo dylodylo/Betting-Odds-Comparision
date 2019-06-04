@@ -99,8 +99,8 @@ def load_matches_odds(match_containers, odd_container, live_matches, league_id):
             team1 = str(match.a.text[:dash_position - 1]).rstrip()
             team2 = str(match.a.text[dash_position + 2:]).rstrip()
             #zapis do bazy kursów (powiązanie z meczem po id)
-            if (database.is_match_in_db(match_id)):
-                if database.compare_odds(bookie, match_id, (home, draw, away, hd, da, ha)) == False:
+            if database.is_match_in_db(match_id):
+                if not database.compare_odds(bookie, match_id, (home, draw, away, hd, da, ha)):
                     database.update_odds(bookie, match_id, home, draw, away, hd, da, ha)
 
             else:

@@ -27,11 +27,12 @@ def scrap():
     driver = webdriver.Firefox()
     driver.get('https://www.milenium.pl/zaklady-bukmacherskie')
     time.sleep(2)
-    try:
-        driver.find_element_by_css_selector('.ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close').click()
-    except:
-        print("brak x")
-    driver.find_element_by_id("close_cookies").click()
+    #try:
+    driver.find_element_by_css_selector('.ui-dialog-titlebar-close').click()
+   # except:
+    print("brak x")
+    time.sleep(1)
+    #driver.find_element_by_id("close_cookies").click()
     driver.execute_script('offer_sport_toggle(1)')
     time.sleep(1)
     element = driver.find_elements_by_xpath("//ul[@id='offer_league_sport_1']/li/span/input")

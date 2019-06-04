@@ -33,62 +33,67 @@ def scrap():
     print("brak x")
     time.sleep(1)
     #driver.find_element_by_id("close_cookies").click()
-    driver.execute_script('offer_sport_toggle(1)')
+    driver.find_element_by_xpath("//a[@href='/zaklady-bukmacherskie/pilka+nozna']").click()
     time.sleep(1)
-    element = driver.find_elements_by_xpath("//ul[@id='offer_league_sport_1']/li/span/input")
+    element = driver.find_elements_by_xpath("//a[@class='category']")
+    element = driver.find_elements_by_xpath("//li[@id='lis1']/label/ul/li")
     counter = 1
     matchcounter = 0
-    for e in element:
-            e.click()
-            time.sleep(1)
-            ScrollSite(driver)
-            page_content = BeautifulSoup(driver.page_source, "html.parser")
-            match_container = page_content('td', class_='nameevent')
-            odds_container = page_content('td', class_='c type_odds')
-            league_container = page_content('th', class_='th_league_name')
-            try:
-                league = league_container[0].find('a').text
-                colon = league.find(':')
-                dash = league.find('-')
-                league = league[dash+1:colon].lstrip()
-                print(league)
-                database.insert_league(bookie, counter, league)
-                for match, odds in zip(match_container, odds_container):
-                    dash = match.text.find('-')
-                    t1 = match.text[:dash]
-                    t2 = match.text[dash+1:]
-                    space = t2.find('  ')
-                    if space>0:
-                        t2 = t2[:space]
-                    print(t1 + ' - ' + t2)
-                    database.insert_match(bookie, matchcounter, t1, t2)
-                    matchcounter = matchcounter + 1
-                    trueodds = odds.find_all('a')
-                    if len(trueodds) == 6:
-                        lastodds = []
-                        for odd in trueodds:
-                            if odd.text == '':
-                                lastodds.append('1')
-                            else:
-                                lastodds.append(odd.text)
-                        home = lastodds[0]
-                        draw = lastodds[1]
-                        away = lastodds[2]
-                        hd = lastodds[3]
-                        da = lastodds[4]
-                        ha = lastodds[5]
-                        print(home + ' ' + draw + ' ' + away + ' ' + hd + ' ' + da + ' ' + ha + ' ')
-                        database.insert_odds(bookie, str(matchcounter), counter, home, draw, away, hd, da, ha)
-                    else:
-                        database.delete_league(bookie, str(counter))
-                        matchcounter = matchcounter - 1
-                        break
-                print(counter)
-                counter = counter + 1
-            except AttributeError as ae:
-                print("błąd z ")
-                print(match_container[0].text)
+    for x in element:
+            cb = x.find_element_by_tag_name('label')
+            cb.click()
+            newelements = cb.find_elements_by_xpath("//ul[@class='leagues']/li")
+            for e in newelements:
+                e.click()
+                time.sleep(1)
+                ScrollSite(driver)
+                page_content = BeautifulSoup(driver.page_source, "html.parser")
+                match_container = page_content('td', class_='nameevent')
+                odds_container = page_content('td', class_='c type_odds')
+                league_container = page_content('th', class_='th_league_name')
+                try:
+                    league = league_container[0].find('a').text
+                    colon = league.find(':')
+                    dash = league.find('-')
+                    league = league[dash+1:colon].lstrip()
+                    print(league)
+                    database.insert_league(bookie, counter, league)
+                    for match, odds in zip(match_container, odds_container):
+                        dash = match.text.find('-')
+                        t1 = match.text[:dash]
+                        t2 = match.text[dash+1:]
+                        space = t2.find('  ')
+                        if space>0:
+                            t2 = t2[:space]
+                        print(t1 + ' - ' + t2)
+                        database.insert_match(bookie, matchcounter, t1, t2)
+                        matchcounter = matchcounter + 1
+                        trueodds = odds.find_all('a')
+                        if len(trueodds) == 6:
+                            lastodds = []
+                            for odd in trueodds:
+                                if odd.text == '':
+                                    lastodds.append('1')
+                                else:
+                                    lastodds.append(odd.text)
+                            home = lastodds[0]
+                            draw = lastodds[1]
+                            away = lastodds[2]
+                            hd = lastodds[3]
+                            da = lastodds[4]
+                            ha = lastodds[5]
+                            print(home + ' ' + draw + ' ' + away + ' ' + hd + ' ' + da + ' ' + ha + ' ')
+                            database.insert_odds(bookie, str(matchcounter), counter, home, draw, away, hd, da, ha)
+                        else:
+                            database.delete_league(bookie, str(counter))
+                            matchcounter = matchcounter - 1
+                            break
+                    print(counter)
+                    counter = counter + 1
+                except AttributeError as ae:
+                    print("błąd z ")
+                    print(match_container[0].text)
 
-            e.click()
+                e.click()
             time.sleep(1)
     driver.close()

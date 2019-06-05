@@ -166,21 +166,19 @@ def compare_odds(bookie, match_id, new_odds):
         return False
 
 
-def update_odds(bookie, match_id, home, draw, away, hd = 0, da = 0, ha = 0):
-    c.execute("UPDATE " + bookie + "_match_odds "
-              "SET home = (?), draw = (?), away = (?),hd = (?), da = (?), ha = (?) "
-              "WHERE id = (?)", (home, draw, away, hd, da, ha, match_id))
+def update_odds(bookie, match_id, home, draw, away, hd = '0', da = '0', ha = '0'):
+    c.execute("UPDATE " + bookie + "_match_odds SET home = " + home + ", draw = " + draw + ", away = " + away + ",hd = " + hd + ", da = " + da + ", ha = " + ha + " WHERE id = " + str(match_id))
+    conn.commit()
     print("Kurs meczu " + str(match_id) + " zaktualizowany!")
 
 
-def is_match_in_db(match_id):
-    c.execute("SELECT * FROM Fortuna_match_odds WHERE ID = (?)", (match_id,))
+def is_match_in_db(bookie, match_id):
+    c.execute("SELECT * FROM " + bookie + "_match_odds WHERE ID = (?)", (match_id,))
     data = c.fetchall()
     if len(data) == 0:
         return False
     else:
         return True
-
 
 
 #funkcja do umieszczania zespołów w tabeli

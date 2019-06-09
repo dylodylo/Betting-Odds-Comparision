@@ -12,6 +12,7 @@ def getAllLaguesLinks(allLinkstoLague=[]):
     leugesLinks=[]
     allLinkstoLague=[]
     x=0
+    id=0
     answer=requests.get(stsURLstronaglowna)
     if answer.status_code==200:
      soup=BeautifulSoup(answer.content,'html.parser')
@@ -27,20 +28,25 @@ def getAllLaguesLinks(allLinkstoLague=[]):
             soup2=BeautifulSoup(answer2.content,'html.parser')
             names = re.findall(r'league_[0,1,2,3,4,5,6,7,8,9,0]*',str(soup2) )
             for name in names:                
-                allLinkstoLague.append({'nazwa':soup2.find(id=str(name)).a.text,'link':soup2.find(id=str(name)).a.get('href')})
-                #database.insert_league()
+                allLinkstoLague.append({'nazwa':soup2.find(id=str(name)).a.text,'link':soup2.find(id=str(name)).a.get('href'),'id':str(id)})
+                database.insert_league("Sts",id,soup2.find(id=str(name)).a.text,soup2.find(id=str(name)).a.get('href') )
+                id=id+1
                 #print(soup2.find(id=str(name)).a.get('href'))
      return allLinkstoLague
     else:
         print('blad')
 
 #scrapowanie kursów ze strony dla danego linku ligi
-def scrapMatches(stsURLleuge,wyniki=[]):
+idmeczu=0
+def scrapMatches(stsleuge):
  wyniki=[]
- answer=requests.get(stsURLleuge)
+ global idmeczu
+ answer=requests.get(stsleuge['link'])
  if answer.status_code == 200:
     soup=BeautifulSoup(answer.content,'html.parser')
     mecze=soup.find(class_="shadow_box support_bets_offer")
+    if mecze==None:
+        return None      
     dzien=mecze.find_all(class_="col3")
     print(str(len(dzien)))
     if dzien !=None:
@@ -78,8 +84,9 @@ def scrapMatches(stsURLleuge,wyniki=[]):
                 print("Drużyna 2 kurs: "+str(druzyna2Kurs))
                 
                 wyniki.append({'druzyna1':druzyna1Nazwa,'kursdruzyna1':druzyna1Kurs,'remis':KursRemis,'druzyna2':druzyna2Nazwa,'kursdruzyna2':druzyna2Kurs})
-                #database.insert_match(id, druzyna1Nazwa, druzyna2Nazwa)
-                #database.insert_odds('Sts', counter, leagueid, )
+                database.insert_match("Sts",idmeczu, druzyna1Nazwa, druzyna2Nazwa)
+                database.insert_odds('Sts', idmeczu ,stsleuge['id'], druzyna1Kurs,KursRemis,druzyna2Kurs,None,None,None )
+                idmeczu=idmeczu+1
     return wyniki
  else:
      print("Błąd: "+answer.status_code)
@@ -91,13 +98,11 @@ def startscrappingSTS():
     linkiwszystkichlig=[]
     wszystkiekursy=[]
     linkiwszystkichlig=getAllLaguesLinks([])
-    if linkiwszystkichlig == []:
-        for url in linkiwszystkichlig:
-            wszystkiekursy.append(scrapMatches(url,[]))
-        with open('pilka.txt', 'w') as outfile:  
-            json.dump(wszystkiekursy, outfile)
-    else:
-        "Błąd scrapowania linków"
+    for link in linkiwszystkichlig:
+        wszystkiekursy.append(scrapMatches(link))
+    with open('pilka.txt', 'w') as outfile:  
+        json.dump(wszystkiekursy, outfile)
+
 
 startscrappingSTS()
 

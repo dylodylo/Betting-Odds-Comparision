@@ -1,4 +1,4 @@
-from flask import Flask, render_template,jsonify,g
+from flask import Flask, render_template,jsonify,g,redirect,url_for
 import json
 import sqlite3
 from sqlite3 import Error
@@ -24,14 +24,33 @@ def copaamerica():
     wyn=cur.fetchall()
     return jsonify(wyn)
 
-
-
 @app.route('/mistrzostwaeuropy')
 def mistrzostwaeuropy():
     cur=get_db().cursor() 
     cur.execute("select t1,t2,jed,X,dwa,jx,Xd,jd FROM (select * FROM Lvbet_match_odds WHERE Lvbet_match_odds.league_id=0 )AS F Inner join Lvbet_matches  On F.id = Lvbet_matches.id ")
     wyn=cur.fetchall()
     return jsonify(wyn)
+
+
+
+@app.route('/szukaj/<name>')
+def wyszukajponazwie(name):
+   cur=get_db().cursor()
+   cur.execute("select id from Fortuna_leagues where name=(?)",[name])
+   idligi=cur.fetchall()   
+   cur.execute("select t1,t2,jed,X,dwa,jx,Xd,jd FROM (select * FROM Fortuna_match_odds WHERE Fortuna_match_odds.league_id=(?) )AS F Inner join Fortuna_matches  On F.id = Fortuna_matches.id  ",[idligi[0][0]])   
+   jsonleagues=cur.fetchall()     
+   return render_template("wynikiligi.html", jsonmatch=jsonleagues)
+
+
+
+@app.route('/szukaj')
+def wyszukiwanie():
+   cur=get_db().cursor() 
+   cur.execute("select name from Fortuna_leagues")   
+   jsonleagues=cur.fetchall()
+   return render_template("wyszukiwanie.html",jsonmatch=jsonleagues)
+
 
 #sqlliteconnecting
 

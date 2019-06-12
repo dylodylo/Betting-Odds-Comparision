@@ -61,32 +61,33 @@ def scrapMatches(stsleuge):
                     data=x.thead
                     print("Data meczu:"+data.text)
                 kursy=x.find_all(class_="bet bigTip")
-                druzyna1=kursy[0].text.split()
-                kursremisStr=x.find(class_="bet smallTip").span.text
-                druzyna2=kursy[1].text.split()
-                for string in druzyna1:
-                    if re.match("^\d+?\.\d+?$", string) is None:
-                        druzyna1Nazwa+=string
-                    else:
-                        druzyna1Kurs=float(string)
+                if len(kursy)>=2:                    
+                    druzyna1=kursy[0].text.split()
+                    kursremisStr=x.find(class_="bet smallTip").span.text
+                    druzyna2=kursy[1].text.split()
+                    for string in druzyna1:
+                        if re.match("^\d+?\.\d+?$", string) is None:
+                            druzyna1Nazwa+=string
+                        else:
+                            druzyna1Kurs=float(string)
 
-                for string in druzyna2:
-                    if re.match("^\d+?\.\d+?$", string) is None:
-                        druzyna2Nazwa+=string
-                    else:
-                        druzyna2Kurs=float(string)
-                    KursRemis=float(kursremisStr)
+                    for string in druzyna2:
+                        if re.match("^\d+?\.\d+?$", string) is None:
+                            druzyna2Nazwa+=string
+                        else:
+                            druzyna2Kurs=float(string)
+                        KursRemis=float(kursremisStr)
 
-                print("Drużyna 1: "+druzyna1Nazwa)
-                print("Druzyna 1 kurs: "+str(druzyna1Kurs))
-                print("Remis: "+str(KursRemis))
-                print("Drużyna 2: "+druzyna2Nazwa)
-                print("Drużyna 2 kurs: "+str(druzyna2Kurs))
-                
-                wyniki.append({'druzyna1':druzyna1Nazwa,'kursdruzyna1':druzyna1Kurs,'remis':KursRemis,'druzyna2':druzyna2Nazwa,'kursdruzyna2':druzyna2Kurs})
-                database.insert_match("Sts",idmeczu, druzyna1Nazwa, druzyna2Nazwa)
-                database.insert_odds('Sts', idmeczu ,stsleuge['id'], druzyna1Kurs,KursRemis,druzyna2Kurs,None,None,None )
-                idmeczu=idmeczu+1
+                    print("Drużyna 1: "+druzyna1Nazwa)
+                    print("Druzyna 1 kurs: "+str(druzyna1Kurs))
+                    print("Remis: "+str(KursRemis))
+                    print("Drużyna 2: "+druzyna2Nazwa)
+                    print("Drużyna 2 kurs: "+str(druzyna2Kurs))
+                    
+                    wyniki.append({'druzyna1':druzyna1Nazwa,'kursdruzyna1':druzyna1Kurs,'remis':KursRemis,'druzyna2':druzyna2Nazwa,'kursdruzyna2':druzyna2Kurs})
+                    database.insert_match("Sts",idmeczu, druzyna1Nazwa, druzyna2Nazwa)
+                    database.insert_odds('Sts', idmeczu ,stsleuge['id'], druzyna1Kurs,KursRemis,druzyna2Kurs,None,None,None )
+                    idmeczu=idmeczu+1
     return wyniki
  else:
      print("Błąd: "+answer.status_code)
@@ -102,12 +103,6 @@ def startscrappingSTS():
         wszystkiekursy.append(scrapMatches(link))
     with open('pilka.txt', 'w') as outfile:  
         json.dump(wszystkiekursy, outfile)
-
-
-startscrappingSTS()
-
-
-
 
 
 #Przykład wykorzystania dla ligi mistrzów

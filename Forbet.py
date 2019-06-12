@@ -44,9 +44,6 @@ def load_leagues():
 #ładowanie kursów meczów z danej ligi (podstrony)
     #match containers przechowuje wszystkie mecze (zespoły), a odd container wszystkie kursy
 def load_matches_odds(match_containers, league_id):
-    matches = []
-    counter=0
-
     for index, match in enumerate(match_containers):
         if index % 3 == 0:
             print(match['data-gameid'])
@@ -54,9 +51,9 @@ def load_matches_odds(match_containers, league_id):
             print(match['data-eventname'])
             print('Kurs na \n' + '1' + '      ' + 'X' + '      ' + '2' + '      ' + '1X' + '      ' + '2X' + '      ' + '12')
             home = match_containers[index]['data-outcomeodds']
-            dash_position = str(match_containers[counter]['data-eventname']).find('-')
-            team1 = str(match_containers[counter]['data-eventname'])[:dash_position - 1]
-            team2 = str(match_containers[counter]['data-eventname'])[dash_position + 2:]
+            dash_position = str(match_containers[index]['data-eventname']).find('-')
+            team1 = str(match_containers[index]['data-eventname'])[:dash_position - 1]
+            team2 = str(match_containers[index]['data-eventname'])[dash_position + 2:]
             draw = match_containers[index+1]['data-outcomeodds']
             away = match_containers[index+2]['data-outcomeodds']
             print(home + '   ' + draw + '   ' + away)
@@ -68,3 +65,6 @@ def load_matches_odds(match_containers, league_id):
                 database.insert_odds(bookie, match_id, league_id, home, draw, away)
                 #zapis do bazy danych meczu (powiązanie z kursami po id)
                 database.insert_match(bookie, match_id, team1, team2)
+
+if __name__ == '__main__':
+    load_matches()

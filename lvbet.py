@@ -128,7 +128,7 @@ def load_matches(driver):
                         ha = oddsarray2[5]
                         print(home + ' ' + draw + ' ' + away + ' ' + hd + ' ' + da + ' ' + ha)
                         if database.is_match_in_db(counter):
-                            if not database.compare_odds(bookie, counter, (home, draw, away, hd, da, ha)):
+                            if not database.compare_odds(bookie, counter, (float(home), float(draw), float(away), float(hd), float(da), float(ha))):
                                 database.update_odds(bookie, counter, home, draw, away, hd, da, ha)
 
                         else:
@@ -144,7 +144,7 @@ def load_matches(driver):
                         away = oddsarray[5]
                         print(home + ' ' + draw + ' ' + away)
                         if database.is_match_in_db(counter):
-                            if not database.compare_odds(bookie, counter, (home, draw, away)):
+                            if not database.compare_odds(bookie, counter, (float(home), float(draw), float(away))):
                                 database.update_odds(bookie, counter, home, draw, away)
 
                         else:
@@ -170,3 +170,7 @@ def scrap():
     load_leagues(countries, driver)
     load_matches(driver)
     driver.close()
+
+
+if __name__ == '__main__':
+    scrap()

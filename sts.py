@@ -104,6 +104,9 @@ def startscrappingSTS():
     with open('pilka.txt', 'w') as outfile:  
         json.dump(wszystkiekursy, outfile)
 
+if __name__ == '__main__':
+    startscrappingSTS()
+
 
 #Przykład wykorzystania dla ligi mistrzów
 #wyn=scrapMatches("https://www.sts.pl/pl/oferta/zaklady-bukmacherskie/zaklady-sportowe/?action=offer&sport=184&region=6480&league=15905&t=1558998795",wyniki=[])

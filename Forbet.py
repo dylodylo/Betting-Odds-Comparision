@@ -4,6 +4,20 @@ import database
 
 bookie = "Forbet"
 
+months = {
+    "sty" : "1",
+    "lut" : "2",
+    "mar" : "3",
+    "kwi" : "4",
+    "maj" : "5",
+    "cze" : "6",
+    "lip" : "7",
+    "sie" : "8",
+    "wrz" : "9",
+    "paź" : "10",
+    "lis" : "11",
+    "gru" : "12",
+}
 
 #ładuje stronę danej ligi
 def load_matches():
@@ -17,11 +31,23 @@ def load_matches():
 
         #odd_container = page_content('td', class_='col_bet') #zbiera wszystkie kursy
         match_containers = page_content.find_all('div', {"data-gamename": "1X2"}) #zbiera wszystkie mecze (zespol1 - zespol 2)
+        dates_container = page_content.find_all('div', {"class": "events-group"})
+        dates = []
+        for date in dates_container:
+            hours = date('div', class_="event-panel")
+            day = date.text[date.text.find(",")+2:date.text.find(":")-2]
+            trueday = day[:2]
+            month = day[day.find(" ")+1:][:3]
+            month = ' '.join([months.get(i, i) for i in month.split()])
+            for h in hours:
+                hour = h.text[:5]
+                dates.append("2019-" + month + "-" + trueday + " " + hour)
+
         if len(match_containers) != 0:
             print(type(match_containers))
             print(len(match_containers))
             print(page_link)
-            load_matches_odds(match_containers, x[0])
+            load_matches_odds(match_containers, dates, x[0])
 
 
 #ładuje WWSZYSTKIE ligi do kontenera
@@ -43,7 +69,8 @@ def load_leagues():
 
 #ładowanie kursów meczów z danej ligi (podstrony)
     #match containers przechowuje wszystkie mecze (zespoły), a odd container wszystkie kursy
-def load_matches_odds(match_containers, league_id):
+def load_matches_odds(match_containers, dates, league_id):
+
     for index, match in enumerate(match_containers):
         if index % 3 == 0:
             print(match['data-gameid'])
@@ -64,7 +91,7 @@ def load_matches_odds(match_containers, league_id):
             else:
                 database.insert_odds(bookie, match_id, league_id, home, draw, away)
                 #zapis do bazy danych meczu (powiązanie z kursami po id)
-                database.insert_match(bookie, match_id, team1, team2)
+                database.insert_match(bookie, match_id, team1, team2, dates[int(index/3)])
 
 if __name__ == '__main__':
     load_matches()

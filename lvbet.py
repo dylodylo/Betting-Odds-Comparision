@@ -81,6 +81,11 @@ def load_matches(driver):
             teams = y('div', class_='col-d-5 col-t-12 teams')
             odds = y('div', class_="col-d-2 col-md-3 col-sd-2 col-t-3 col-st-6 col-sm-12 ng-star-inserted")
             odds2 = y('div', class_="col-d-2 col-md-3 col-sd-2 col-t-3 col-st-6 col-sm-hidden ng-star-inserted")
+            date = y('div', class_='date ng-star-inserted')
+            hour = date[0].text[:5]
+            day = date[0].text[5:7]
+            month = date[0].text[-2:-1]
+            date = "2019-" + month + "-" + day + " " + hour
             foramoment = unidecode.unidecode(teams[0].text.lower())
             if foramoment.find(newdashtext) > 0:
                 slice = foramoment.find(newdashtext)
@@ -101,7 +106,7 @@ def load_matches(driver):
                 team1 = teams[:dash - 2].lstrip()
                 team2 = teams[dash + 2:].rstrip()
                 if team1 != '':
-                    database.insert_match(bookie, counter, team1, team2)
+                    database.insert_match(bookie, counter, team1, team2, date)
                     print(team1 + ' - ' + team2)
                 try:
                     oddsarray = odds[0].text.split(' ')
@@ -135,7 +140,7 @@ def load_matches(driver):
                         else:
                             database.insert_odds(bookie, counter, x[0], home, draw, away, hd, da, ha)
                             # zapis do bazy danych meczu (powiązanie z kursami po id)
-                            database.insert_match(bookie, counter, team1, team2)
+                            database.insert_match(bookie, counter, team1, team2, date)
                     except:
                         print("Problem z listami odds")
                 else:
@@ -151,7 +156,7 @@ def load_matches(driver):
                         else:
                             database.insert_odds(bookie, counter, x[0], home, draw, away)
                             # zapis do bazy danych meczu (powiązanie z kursami po id)
-                            database.insert_match(bookie, counter, team1, team2)
+                            database.insert_match(bookie, counter, team1, team2, date)
                     except:
                         print("Problem z listami odds bez odds2")
                 counter = counter + 1

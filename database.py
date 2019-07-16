@@ -15,7 +15,7 @@ def delete_leagues_table(bookie):
 
 
 def create_matches_table(bookie):
-    c.execute('CREATE TABLE IF NOT EXISTS ' + bookie + '_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING)')
+    c.execute('CREATE TABLE IF NOT EXISTS ' + bookie + '_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING, date DATETIME)')
 
 
 def delete_matches_table(bookie):
@@ -123,10 +123,9 @@ def insert_odds(bookie, id, league_id, odd1, oddx, odd2, odd1x = 0, oddx2 = 0, o
         pass
     conn.commit()
 
-
-def insert_match(bookie, id, t1, t2):
+def insert_match(bookie, id, t1, t2, date):
     try:
-        c.execute('INSERT INTO ' + bookie + '_matches VALUES (?, ?, ?)', (id, t1, t2))
+        c.execute('INSERT INTO ' + bookie + '_matches VALUES (?, ?, ?, ?)', (id, t1, t2, date))
     except sqlite3.IntegrityError as ie:
         pass
     conn.commit()

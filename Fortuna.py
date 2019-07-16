@@ -19,12 +19,13 @@ def load_matches():
         odd_container = page_content('td', class_='col_bet') #zbiera wszystkie kursy
         match_containers = page_content.find_all('tr', {"data-gtm-enhanced-ecommerce-variant": "Mecz"}) #zbiera wszystkie mecze (zespol1 - zespol 2)
         live_match_container = page_content.find_all('td', {"class": "col_title col_title_live_running"}) #zbieramy mecze, które są "live", później wykluczymy je z zestawienia, bo nie są dla nich określone kursy
+        dates = page_content.find_all('td', {"class": "col_date sorted_column"})
         print(len(match_containers))
         print (page_link)
         if (len(match_containers) != 0):
             print(match_containers[0].get("data-gtm-enhanced-ecommerce-sport"))
         if len(match_containers) != 0 and str(match_containers[0].get("data-gtm-enhanced-ecommerce-sport")) in['Pilka nozna', 'Piłka nożna']:
-            load_matches_odds(match_containers, odd_container, len(live_match_container), x[0])
+            load_matches_odds(match_containers, odd_container, dates, len(live_match_container), x[0])
 
 
 # ładuje WSZYSTKIE ligi do kontenera
@@ -54,11 +55,17 @@ def load_leagues():
 #ładowanie kursów meczów z danej ligi (podstrony)
     #match containers przechowuje wszystkie mecze (zespoły), a odd container wszystkie kursy
 
-def load_matches_odds(match_containers, odd_container, live_matches, league_id):
+def load_matches_odds(match_containers, odd_container, dates, live_matches, league_id):
     counter=0
     while counter+live_matches < len(match_containers):
             match=match_containers[counter+live_matches] #wybieramy kolejne mecze;nie chcemy brać pod uwagę meczów live
             print(match.a.text)
+            date = dates[counter+live_matches].text[9:-7]
+            datetuple = date[:5].split('.')
+            hour = date[-5:]
+            date = "2019-" + datetuple[1] + "-" + datetuple[0] + " " + hour
+            print(date)
+
             dash_position = match.a.text.find("-") #określamy pozycję '-' aby potem pobrać nazwy zespołów
             #pobieranie kursów
             home = odd_container[0+(counter*6)]
@@ -103,7 +110,7 @@ def load_matches_odds(match_containers, odd_container, live_matches, league_id):
             else:
                 database.insert_odds(bookie, match_id, league_id, home, draw, away, hd, da, ha)
                 #zapis do bazy danych meczu (powiązanie z kursami po id)
-                database.insert_match(bookie, match_id, team1, team2)
+                database.insert_match(bookie, match_id, team1, team2, date)
             print(home + '   ' + draw + '   ' + away + '   ' + hd + '   ' + da + '   ' + ha)
             counter += 1
 

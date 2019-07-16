@@ -12,9 +12,9 @@ def load_countries(sports_container):
     countries = []
     for a in sports_container:
         link_text = a.attrs['href']
-        if link_text != '/pl/zaklady-bukmacherskie':
-            print('Link: https://lvbet.pl' + link_text)
-            country_site = 'https://lvbet.pl' + link_text
+        if link_text != "/pl/zaklady-bukmacherskie" and link_text != "/pl/zaklady-bukmacherskie/--":
+            print("Link: https://lvbet.pl" + link_text)
+            country_site = "https://lvbet.pl" + link_text
             countries.append(country_site)
     return countries
 
@@ -28,7 +28,7 @@ def load_leagues(countries, driver):
         leagues_container = page_content('a', class_='col-d-3 col-mt-4 col-st-6 col-sm-12 ng-star-inserted')
         for y in leagues_container:
             link_text = y.attrs['href']
-            if link_text != '/pl/zaklady-bukmacherskie':
+            if link_text != '/pl/zaklady-bukmacherskie' and link_text != '/pl/zaklady-bukmacherskie/--':
                 print('https://lvbet.pl' + link_text)
                 league_site = 'https://lvbet.pl' + link_text
                 league_id = counter
@@ -46,8 +46,9 @@ def load_matches(driver):
         print(link)
         driver.get(str(link))
         time.sleep(3)
-        slash = link.rfind('/')
-        text = link[slash + 1:]
+        text = link[:link.rfind('--')-1]
+        slash = text.rfind('/')
+        text = text[slash + 1:]
         p = text.rfind('%')
         dash = text.rfind('-')
         if (p > 0):

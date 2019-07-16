@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import database
 
 bookie = "Milenium"
+
 def ScrollSite(driver):
     SCROLL_PAUSE_TIME = 0.5
 

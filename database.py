@@ -189,7 +189,7 @@ def insert_teams(bookie):
     data = c.fetchall()
     i = 0
     for row in data:
-        row = str(row)[2:].rstrip("\',)").rstrip('\"')
+        row = str(row)[2:].rstrip("\',)").rstrip('\"').replace("'","")
         row = row.replace("'", "")
         print(row)
         c.execute("SELECT " + bookie + "_name FROM " + bookie + "_teams WHERE " + bookie + "_name = '"+row+"'")
@@ -202,17 +202,16 @@ def insert_teams(bookie):
     c.execute("SELECT t2 FROM " + bookie + "_matches")
     data = c.fetchall()
     for row in data:
-        row = str(row)[2:].rstrip("\',)")
+        row = str(row)[2:].rstrip("\',)").replace("'","")
         c.execute("SELECT " + bookie + "_name FROM " + bookie + "_teams WHERE " + bookie + "_name = '"+row+"'")
         pom = c.fetchall()
-        if  len(pom) > 0:
+        if len(pom) > 0:
             pass
         else:
             c.execute('INSERT INTO ' + bookie + '_teams (id, ' + bookie + '_name) VALUES (?,?)', (i, row))
             i = i+1
     print(data)
     conn.commit()
-
 
 def insert_all_teams():
     insert_teams("Fortuna")

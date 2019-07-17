@@ -106,7 +106,7 @@ def load_matches(driver):
                 team1 = teams[:dash - 2].lstrip()
                 team2 = teams[dash + 2:].rstrip()
                 if team1 != '':
-                    database.insert_match(bookie, counter, team1, team2, date)
+                    database.insert_match(bookie, counter, team1, team2, date, x[0])
                     print(team1 + ' - ' + team2)
                 try:
                     oddsarray = odds[0].text.split(' ')
@@ -138,9 +138,9 @@ def load_matches(driver):
                                 database.update_odds(bookie, counter, home, draw, away, hd, da, ha)
 
                         else:
-                            database.insert_odds(bookie, counter, x[0], home, draw, away, hd, da, ha)
+                            database.insert_odds(bookie, counter, home, draw, away, hd, da, ha)
                             # zapis do bazy danych meczu (powiązanie z kursami po id)
-                            database.insert_match(bookie, counter, team1, team2, date)
+                            database.insert_match(bookie, counter, team1, team2, date, x[0])
                     except:
                         print("Problem z listami odds")
                 else:
@@ -154,9 +154,9 @@ def load_matches(driver):
                                 database.update_odds(bookie, counter, home, draw, away)
 
                         else:
-                            database.insert_odds(bookie, counter, x[0], home, draw, away)
+                            database.insert_odds(bookie, counter, home, draw, away)
                             # zapis do bazy danych meczu (powiązanie z kursami po id)
-                            database.insert_match(bookie, counter, team1, team2, date)
+                            database.insert_match(bookie, counter, team1, team2, date, x[0])
                     except:
                         print("Problem z listami odds bez odds2")
                 counter = counter + 1

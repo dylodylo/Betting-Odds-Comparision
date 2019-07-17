@@ -91,7 +91,7 @@ def load_matches_odds(match_containers, dates, league_id):
             else:
                 database.insert_odds(bookie, match_id, league_id, home, draw, away)
                 #zapis do bazy danych meczu (powiązanie z kursami po id)
-                database.insert_match(bookie, match_id, team1, team2, dates[int(index/3)])
+                database.insert_match(bookie, match_id, team1, team2, dates[int(index/3)], league_id)
 
 if __name__ == '__main__':
     load_matches()

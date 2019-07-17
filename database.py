@@ -15,7 +15,9 @@ def delete_leagues_table(bookie):
 
 
 def create_matches_table(bookie):
-    c.execute('CREATE TABLE IF NOT EXISTS ' + bookie + '_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING, date DATETIME)')
+    c.execute('CREATE TABLE IF NOT EXISTS ' + bookie +
+              '_matches(id INT PRIMARY KEY, t1 STRING, t2 STRING, date DATETIME,league_id INT, '
+              'FOREIGN KEY(league_id) REFERENCES ' + bookie + '_leagues(id))')
 
 
 def delete_matches_table(bookie):
@@ -24,8 +26,7 @@ def delete_matches_table(bookie):
 
 def create_match_odds_table(bookie):
     c.execute('CREATE TABLE IF NOT EXISTS ' + bookie + '_match_odds(id INT PRIMARY KEY, home FLOAT, draw FLOAT, '
-                                                       'away FLOAT, hd FLOAT, da FLOAT, ha FLOAT, league_id INT, '
-                                                       'FOREIGN KEY(league_id) REFERENCES ' + bookie + '_leagues(id))')
+                                                       'away FLOAT, hd FLOAT, da FLOAT, ha FLOAT)')
 
 
 def delete_match_odds_table(bookie):
@@ -116,16 +117,16 @@ def insert_league(bookie, id, name, site =''):
     conn.commit()
 
 
-def insert_odds(bookie, id, league_id, odd1, oddx, odd2, odd1x = 0, oddx2 = 0, odd12 = 0):
+def insert_odds(bookie, id, odd1, oddx, odd2, odd1x = 0, oddx2 = 0, odd12 = 0):
     try:
-        c.execute("INSERT INTO " + bookie + "_match_odds VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (id, odd1, oddx, odd2, odd1x, oddx2, odd12, league_id))
+        c.execute("INSERT INTO " + bookie + "_match_odds VALUES (?, ?, ?, ?, ?, ?, ?)", (id, odd1, oddx, odd2, odd1x, oddx2, odd12))
     except sqlite3.IntegrityError as ie:
         pass
     conn.commit()
 
-def insert_match(bookie, id, t1, t2, date):
+def insert_match(bookie, id, t1, t2, date, league_id):
     try:
-        c.execute('INSERT INTO ' + bookie + '_matches VALUES (?, ?, ?, ?)', (id, t1, t2, date))
+        c.execute('INSERT INTO ' + bookie + '_matches VALUES (?, ?, ?, ?, ?)', (id, t1, t2, date, league_id))
     except sqlite3.IntegrityError as ie:
         pass
     conn.commit()
@@ -146,7 +147,9 @@ def get_leagues(bookie):
 
 
 def get_league_matches(bookie, league_name):
-    c.execute("SELECT t1, t2 FROM " + bookie + "_matches AS fm INNER JOIN " + bookie + "_match_odds AS fmo ON fmo.id = fm.id INNER JOIN " + bookie + "_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.name = (?)", (league_name,))
+    c.execute("SELECT t1, t2 FROM " + bookie + "_matches AS fm INNER JOIN "
+              + bookie + "_match_odds AS fmo ON fmo.id = fm.id INNER JOIN " + bookie
+              + "_leagues AS fl ON fl.id = fmo.league_id  WHERE fl.name = (?)", (league_name,))
     data = c.fetchall()
     return data
 

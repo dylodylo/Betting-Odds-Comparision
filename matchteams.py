@@ -16,127 +16,93 @@ database.create_matchedteams_table()
 
 def matchleagues():
     fortuna_matches = database.select_matches_from_league("Fortuna")
-    c.execute("SELECT t1, t2, date, league_id FROM Forbet_matches")
-    forbet_matches = c.fetchall()
     for match in fortuna_matches:
-        c.execute("SELECT t1, t2, date, league_id, site FROM Forbet_matches AS fm INNER JOIN Forbet_leagues AS fl ON "
-                  "fm.league_id = fl.id WHERE t1 = '" + match[0] + "' AND date = '"
-                  + match[2] + "'")
-        data = c.fetchall()
-        if len(data)>0:
-            c.execute("SELECT idFortuna FROM matched_leagues WHERE idFortuna = " + str(match[3]))
-            check = c.fetchall()
-            if len(check) == 0:
-                c.execute("INSERT INTO matched_leagues VALUES (?, ?, ?, ?)",
-                          (match[3], match[4], data[0][3], data[0][4]))
-                conn.commit()
-            if len(data)>1:
-                print("okurwaco")
-            print(data)
-        c.execute("SELECT t1, t2, date, league_id, site FROM Forbet_matches AS fm INNER JOIN Forbet_leagues AS fl ON "
-                  "fm.league_id = fl.id WHERE t1 = '" + match[1] + "' AND date = '"
-                  + match[2] + "'")
-        data = c.fetchall()
-        if len(data) > 0:
-            c.execute("SELECT idFortuna FROM matched_leagues WHERE idFortuna = " + str(match[3]))
-            check = c.fetchall()
-            if len(check) == 0:
-                c.execute("INSERT INTO matched_leagues VALUES (?, ?, ?, ?)",
-                          (match[3], match[4], data[0][3], data[0][4]))
-                conn.commit()
-            if len(data) > 1:
-                print("okurwaco")
-            print(data)
+        league_matched = database.is_league_matched("Fortuna", str(match[3]))
+        if not league_matched:
+            data = database.select_matches_from_league_with_date_and_team1("Forbet", match[0], match[2])
+            if len(data)>0:
+                database.insert_matched_leagues(match[3], match[4], data[0][3], data[0][4])
+                print(data)
+            else:
+                data = database.select_matches_from_league_with_date_and_team2("Forbet", match[1], match[2])
+                if len(data) > 0:
+                    database.insert_matched_leagues(match[3], match[4], data[0][3], data[0][4])
+                    print(data)
 
-
-matchleagues()
 
 def matchteams():
-    c.execute("SELECT idFortuna, idForbet FROM matched_leagues")
-    data = c.fetchall()
-
+    data = database.select_leagues_from_matched_leagues("Fortuna", "Forbet")
     for league in data:
-        c.execute("SELECT t1, t2, date FROM Fortuna_matches WHERE league_id = " + str(league[0]))
-        fortuna_matches = c.fetchall()
-        print(fortuna_matches)
-        c.execute("SELECT t1, t2, date FROM Forbet_matches WHERE league_id = " + str(league[1]))
-        forbet_matches = c.fetchall()
-        print(forbet_matches)
-        for fortunamatch in fortuna_matches:
-            for forbetmatch in forbet_matches:
-                fortunatime = datetime.strptime(fortunamatch[2], '%Y-%m-%d %H:%M')
-                forbettime = datetime.strptime(forbetmatch[2], '%Y-%m-%d %H:%M')
+        bookie1matches = database.select_matches_from_matched_league("Fortuna", str(league[0]))
+        print(bookie1matches)
+        bookie2matches = database.select_matches_from_matched_league("Forbet", str(league[1]))
+        print(bookie2matches)
+        for bookie1match in bookie1matches:
+            for bookie2match in bookie2matches:
+                bookie1matchtime = datetime.strptime(bookie1match[2], '%Y-%m-%d %H:%M')
+                bookie2matchtime = datetime.strptime(bookie2match[2], '%Y-%m-%d %H:%M')
 
-                if fortunatime == forbettime:
-                    fortunaone = fortunamatch[0].rstrip(".").replace(".", " ").split(" ")
-                    fortunatwo = fortunamatch[1].rstrip(".").replace(".", " ").split(" ")
-                    forbetone = forbetmatch[0].rstrip(".").replace(".", " ").split(" ")
-                    forbettwo = forbetmatch[1].rstrip(".").replace(".", " ").split(" ")
-                    findone = any([a == b for (a, b) in itertools.product(fortunaone, forbetone)]) == True
-                    findtwo = any([a == b for (a, b) in itertools.product(fortunatwo, forbettwo)]) == True
+                if bookie1matchtime == bookie2matchtime:
+                    bookie1team1 = bookie1match[0].rstrip(".").replace(".", " ").split(" ") #team1 phrases
+                    bookie1team2 = bookie1match[1].rstrip(".").replace(".", " ").split(" ") #team2 phrases
+                    bookie2team1 = bookie2match[0].rstrip(".").replace(".", " ").split(" ")
+                    bookie2team2 = bookie2match[1].rstrip(".").replace(".", " ").split(" ")
+
+                    #find any matching phrase for teams1 or teams2
+                    #so we find also if two teams have FC in name (like Liverpool FC and Everton FC)
+                    findone = any([a == b for (a, b) in itertools.product(bookie1team1, bookie2team1)]) is True
+                    findtwo = any([a == b for (a, b) in itertools.product(bookie1team2, bookie2team2)]) is True
 
                     if findone or findtwo:
-                        c.execute('SELECT id from Fortuna_teams WHERE Fortuna_name = "' + fortunamatch[0] + '"')
-                        fortunaoneid = c.fetchall()
-                        c.execute('SELECT id from Fortuna_teams WHERE Fortuna_name = "' + fortunamatch[1] + '"')
-                        fortunatwoid = c.fetchall()
-                        c.execute('SELECT id from Forbet_teams WHERE Forbet_name = "' + forbetmatch[0] + '"')
-                        forbetoneid = c.fetchall()
-                        c.execute('SELECT id from Forbet_teams WHERE Forbet_name = "' + forbetmatch[1] + '"')
-                        forbettwoid = c.fetchall()
-                        c.execute("INSERT INTO matched_teams VALUES (?, ?, ?, ?, ?)",
-                                  (None, fortunaoneid[0][0], forbetoneid[0][0], fortunamatch[0], forbetmatch[0]))
-                        conn.commit()
-                        c.execute("INSERT INTO matched_teams VALUES (?, ?, ?, ?, ?)",
-                                  (None, fortunatwoid[0][0], forbettwoid[0][0], fortunamatch[1], forbetmatch[1]))
-                        conn.commit()
-                        print(fortunamatch[0] + " " + fortunamatch[1] + " " + forbetmatch[0] + " " + forbetmatch[1])
+                        fortunaoneid = database.get_team_id("Fortuna", bookie1match[0])
+                        fortunatwoid = database.get_team_id("Fortuna", bookie1match[1])
+                        forbetoneid = database.get_team_id("Forbet", bookie2match[0])
+                        forbettwoid = database.get_team_id("Forbet", bookie2match[1])
+                        database.insert_matched_teams(fortunaoneid, forbetoneid, bookie1match[0], bookie2match[0])
+                        database.insert_matched_teams(fortunatwoid, forbettwoid, bookie1match[1], bookie2match[1])
+                        print(bookie1match[0] + " " + bookie1match[1] + " " + bookie2match[0] + " " + bookie2match[1])
 
-matchteams()
 
 def matchmatches():
-    c.execute("DROP TABLE IF EXISTS matches")
-    c.execute("CREATE TABLE IF NOT EXISTS matches(id INTEGER PRIMARY KEY, Fortunaid INT, Forbetid INT, FOREIGN KEY (Fortunaid)" 
-              "REFERENCES Fortuna_matches (id), FOREIGN KEY (Forbetid) REFERENCES Forbet_matches(id))")
-
-    c.execute("SELECT * FROM Fortuna_matches")
-    matches = c.fetchall()
+    database.delete_matched_matches_table()
+    database.create_matched_matches_table()
+    matches = database.select_matches_from_bookie("Fortuna")
     for match in matches:
         print(match)
-        c.execute('SELECT nameForbet FROM matched_teams WHERE nameFortuna = "' + str(match[1]) + '"')
-        forbetnameone = c.fetchall()
-        if len(forbetnameone):
-            forbetnameone = forbetnameone[0][0]
-        else:
-            forbetnameone = ''
-        c.execute('SELECT nameForbet FROM matched_teams WHERE nameFortuna = "' + str(match[2]) + '"')
-        forbetnametwo = c.fetchall()
-        if len(forbetnametwo):
-            forbetnametwo = forbetnametwo[0][0]
-        else:
-            forbetnametwo = ''
-        c.execute('SELECT id FROM Forbet_matches WHERE date = "' + (match[3]) + '" AND (t1 = "' + str(forbetnameone) +
-                                                                      '" OR t2 = "' + str(forbetnametwo) + '")')
+        teamonename = database.get_matched_team_name("Forbet", "Fortuna", str(match[1]))
+        teamtwoname = database.get_matched_team_name("Forbet", "Fortuna", str(match[2]))
+        c.execute('SELECT id FROM Forbet_matches WHERE date = "' + (match[3]) + '" AND (t1 = "' + str(teamonename) +
+                                                                      '" OR t2 = "' + str(teamtwoname) + '")')
         data = c.fetchall()
         print(data)
         if len(data)>0:
             c.execute('INSERT INTO matches VALUES (?, ?, ?)', (None, match[0], data[0][0]))
             conn.commit()
 
+        #TODO: IF fobetnamone or forbetnametwo = '' ale jedno z nich jest zmatchowane to zmatchuj ten drugi
 
+
+matchleagues()
+matchteams()
+matchmatches()
 c.execute("SELECT * FROM matches")
 matches = c.fetchall()
 for match in matches:
     c.execute('SELECT * FROM Fortuna_matches WHERE id = "' + str(match[1]) + '"')
     teams = c.fetchall()
     print(teams[0][1] + " - " + teams[0][2])
-    c.execute('SELECT * FROM Fortuna_match_odds WHERE id = "' + str(match[1]) + '"')
-    fortunamatch = c.fetchall()
-    c.execute('SELECT * FROM Forbet_match_odds WHERE id = "' + str(match[2]) + '"')
-    forbetmatch = c.fetchall()
+    fortunamatch = database.get_match_odds("Fortuna", str(match[1]))
+    forbetmatch = database.get_match_odds("Forbet", str(match[2]))
     print("Kursy w Fortunie:")
-    print(str(fortunamatch[0][1]) + " " + str(fortunamatch[0][2]) + " " + str(fortunamatch[0][3]) + " " + str(
-        fortunamatch[0][4]) + " " + str(fortunamatch[0][5]) + " " + str(fortunamatch[0][6]))
+    print(str(fortunamatch[0]) + " " + str(fortunamatch[1]) + " " + str(fortunamatch[2]) + " " + str(
+        fortunamatch[3]) + " " + str(fortunamatch[4]) + " " + str(fortunamatch[5]))
     print("Kursy w Forbecie:")
-    print(str(forbetmatch[0][1]) + " " + str(forbetmatch[0][2]) + " " + str(forbetmatch[0][3]))
+    print(str(forbetmatch[0]) + " " + str(forbetmatch[1]) + " " + str(forbetmatch[2]) + " " + str(forbetmatch[3]) )
 
+c.execute("SELECT * FROM Fortuna_teams")
+teams = c.fetchall()
+for team in teams:
+    c.execute("SELECT * FROM matched_teams WHERE nameFortuna = '" + str(team[1]) + "'")
+    data = c.fetchall()
+    if len(data) == 0:
+        print(team)

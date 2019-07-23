@@ -243,13 +243,85 @@ def delete_matchedteams_table():
 
 
 def select_matches_from_league(bookie):
-    c.execute("SELECT t1, t2, date, league_id, site FROM " + bookie + "_matches AS fm INNER JOIN" + bookie +
+    c.execute("SELECT t1, t2, date, league_id, site FROM " + bookie + "_matches AS fm INNER JOIN " + bookie +
               "_leagues AS fl ON fm.league_id = fl.id")
     data = c.fetchall()
     return data
 
 
-def select_matches_from_league_with_date_and_team1():
-    c.execute("SELECT t1, t2, date, league_id, site FROM Forbet_matches AS fm INNER JOIN Forbet_leagues AS fl ON "
-              "fm.league_id = fl.id WHERE t1 = '" + match[0] + "' AND date = '"
-              + match[2] + "'")
+def select_matches_from_league_with_date_and_team1(bookie, team1, date):
+    c.execute("SELECT t1, t2, date, league_id, site FROM " + bookie + "_matches AS fm INNER JOIN " + bookie +
+              "_leagues AS fl ON fm.league_id = fl.id WHERE t1 = '" + team1 + "' AND date = '" + date + "'")
+    data = c.fetchall()
+    return data
+
+
+def select_matches_from_league_with_date_and_team2(bookie, team2, date):
+    c.execute("SELECT t1, t2, date, league_id, site FROM " + bookie + "_matches AS fm INNER JOIN " + bookie +
+              "_leagues AS fl ON fm.league_id = fl.id WHERE t2 = '" + team2 + "' AND date = '" + date + "'")
+    data = c.fetchall()
+    return data
+
+
+def insert_matched_leagues(idFortuna, siteFortuna, idForbet, siteForbet):
+    c.execute("INSERT INTO matched_leagues VALUES (?, ?, ?, ?)",
+              (idFortuna, siteFortuna, idForbet, siteForbet))
+    conn.commit()
+
+
+def is_league_matched(bookie, league):
+    c.execute("SELECT id" + bookie + " FROM matched_leagues WHERE id" + bookie + " = " + league)
+    check = c.fetchall()
+    if len(check) == 0:
+        return False
+    else:
+        return True
+
+
+def select_matches_from_matched_league(bookie, league):
+    c.execute("SELECT t1, t2, date FROM " + bookie + "_matches WHERE league_id = " + league)
+    data = c.fetchall()
+    return data
+
+
+def select_leagues_from_matched_leagues(bookie1, bookie2):
+    c.execute("SELECT id" + bookie1 + ", id" + bookie2 + " FROM matched_leagues")
+    data = c.fetchall()
+    return data
+
+
+def get_team_id(bookie, teamname):
+    c.execute('SELECT id from ' + bookie + '_teams WHERE ' + bookie + '_name = "' + teamname + '"')
+    data = c.fetchall()
+    return data[0][0]
+
+
+def insert_matched_teams(id1, id2, name1, name2):
+    c.execute("INSERT INTO matched_teams VALUES (?, ?, ?, ?, ?)", (None, id1, id2, name1, name2))
+    conn.commit()
+
+
+def delete_matched_matches_table():
+    c.execute("DROP TABLE IF EXISTS matches")
+
+
+def create_matched_matches_table():
+    c.execute("CREATE TABLE IF NOT EXISTS matches(id INTEGER PRIMARY KEY, Fortunaid INT, Forbetid INT, "
+              "FOREIGN KEY (Fortunaid) REFERENCES Fortuna_matches (id), "
+              "FOREIGN KEY (Forbetid) REFERENCES Forbet_matches(id))")
+
+
+def select_matches_from_bookie(bookie):
+    c.execute("SELECT * FROM " + bookie + "_matches")
+    data = c.fetchall()
+    return data
+
+
+def get_matched_team_name(bookiefrom, bookietocompare, name):
+    c.execute('SELECT name' + bookiefrom + ' FROM matched_teams WHERE name' + bookietocompare + ' = "' + name + '"')
+    name = c.fetchall()
+    if len(name):
+        name = name[0][0]
+    else:
+        name = ''
+    return name

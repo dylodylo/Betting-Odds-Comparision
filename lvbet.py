@@ -25,7 +25,7 @@ def load_leagues(countries, driver):
         print(x)
         driver.get(x)
         page_content = BeautifulSoup(driver.page_source, "html.parser")
-        leagues_container = page_content('a', class_='col-d-3 col-mt-4 col-st-6 col-sm-12 ng-star-inserted')
+        leagues_container = page_content('a', class_='col-d-3 col-mt-4 col-st-6 col-sm-12')
         for y in leagues_container:
             link_text = y.attrs['href']
             if link_text != '/pl/zaklady-bukmacherskie' and link_text != '/pl/zaklady-bukmacherskie/--':
@@ -79,13 +79,14 @@ def load_matches(driver):
             oddsarray = []
             oddsarray2 = []
             teams = y('div', class_='col-d-5 col-t-12 teams')
-            odds = y('div', class_="col-d-2 col-md-3 col-sd-2 col-t-3 col-st-6 col-sm-12 ng-star-inserted")
-            odds2 = y('div', class_="col-d-2 col-md-3 col-sd-2 col-t-3 col-st-6 col-sm-hidden ng-star-inserted")
-            date = y('div', class_='date ng-star-inserted')
+            odds = y('div', class_="col-d-2 col-md-3 col-sd-2 col-t-3 col-st-6 col-sm-12")
+            odds2 = y('div', class_="col-d-2 col-md-3 col-sd-2 col-t-3 col-st-6 col-sm-hidden")
+            date = y('div', class_='date')
             hour = date[0].text[:5]
             day = date[0].text[5:7]
             month = date[0].text[-2:-1]
             date = "2019-" + month + "-" + day + " " + hour
+            print(date)
             foramoment = unidecode.unidecode(teams[0].text.lower())
             if foramoment.find(newdashtext) > 0:
                 slice = foramoment.find(newdashtext)
@@ -112,10 +113,10 @@ def load_matches(driver):
                     oddsarray = odds[0].text.split(' ')
                 except:
                     try:
-                        oddsarray = y('div', class_='col-d-6 col-t-9 col-st-12 ng-star-inserted')[0].text.split(' ')
+                        oddsarray = y('div', class_='col-d-6 col-t-9 col-st-12')[0].text.split(' ')
                     except:
                         try:
-                            oddsarray = y('div', class_='col-d-3 col-md-3 col-t-5 col-st-6 ng-star-inserted')[
+                            oddsarray = y('div', class_='col-d-3 col-md-3 col-t-5 col-st-6')[
                                 0].text.split(' ')
                         except:
                             print('brak array')
@@ -171,7 +172,7 @@ def scrap():
     driver = get_driver()
     driver.get('https://lvbet.pl/pl/zaklady-bukmacherskie/5/pilka-nozna')
     page_content = BeautifulSoup(driver.page_source, "html.parser")
-    sports_container = page_content('a', class_='col-d-3 col-mt-4 col-st-6 col-sm-12 ng-star-inserted')
+    sports_container = page_content('a', class_='col-d-3 col-mt-4 col-st-6 col-sm-12')
     countries = load_countries(sports_container)
     load_leagues(countries, driver)
     load_matches(driver)

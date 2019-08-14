@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Odds Comparator</title>
+{% endblock %}
+
+{% block body %}
+<h1 style="text-align: center">Porównywarka kursów bukmacherskich</h1>
+<table>
+
+{% for match in matches %}
+<tr>
+    <td> {{ match[0] }} </td>
+    <td> {{ match[1] }} </td>
+    <td> {{ match[2] }} </td>
+    <td> {{ match[3] }} </td>
+    <td> {{ match[4] }} </td>
+    <td> {{ match[5] }} </td>
+    <td> {{ match[6] }} </td>
+    <td> {{ match[7] }} </td>
+    <td> {{ match[8] }} </td>
+</tr>
+
+{% endfor %}
+
+</table>
+{% endblock %}
+

@@ -7,6 +7,8 @@ import database
 
 bookie = "Lvbet"
 
+database.delete_all_lvbet_tables()
+database.create_all_lvbet_tables()
 
 def load_countries(sports_container):
     countries = []
@@ -141,7 +143,7 @@ def load_matches(driver):
                         else:
                             database.insert_odds(bookie, counter, home, draw, away, hd, da, ha)
                             # zapis do bazy danych meczu (powiązanie z kursami po id)
-                            database.insert_match(bookie, counter, team1, team2, date, x[0])
+                            #database.insert_match(bookie, counter, team1, team2, date, x[0])
                     except:
                         print("Problem z listami odds")
                 else:
@@ -157,7 +159,7 @@ def load_matches(driver):
                         else:
                             database.insert_odds(bookie, counter, home, draw, away)
                             # zapis do bazy danych meczu (powiązanie z kursami po id)
-                            database.insert_match(bookie, counter, team1, team2, date, x[0])
+                            #database.insert_match(bookie, counter, team1, team2, date, x[0])
                     except:
                         print("Problem z listami odds bez odds2")
                 counter = counter + 1
@@ -180,4 +182,4 @@ def scrap():
 
 
 if __name__ == '__main__':
-    load_matches(get_driver())
+    scrap()

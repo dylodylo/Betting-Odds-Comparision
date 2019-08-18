@@ -4,7 +4,7 @@ import sqlite3
 from flask import g
 app = Flask(__name__)
 
-DATABASE = 'test.db'
+DATABASE = 'bazadanych.db'
 
 
 def make_dicts(cursor, row):
@@ -32,7 +32,7 @@ def close_connection(exception):
 
 def index():
     cur = get_db().cursor()
-    cur.execute("SELECT * FROM matches")
+    cur.execute("SELECT * FROM matches WHERE idFortuna NOT NULL AND idForbet NOT NULL and idLvbet NOT NULL")
     res = cur.fetchall()
     fortunaid = []
     forbetid = []
@@ -45,26 +45,43 @@ def index():
         fortunaodds = cur.fetchall()
         cur.execute("SELECT * FROM Forbet_match_odds WHERE id = " + str(match[2]))
         forbetodds = cur.fetchall()
+        cur.execute("SELECT * FROM Lvbet_match_odds WHERE id = " + str(match[3]))
+        lvbetodds = cur.fetchall()
         cur.execute("SELECT * FROM Fortuna_matches WHERE id = " + str(match[1]))
         teams = cur.fetchall()
-        if fortunaodds[0][1] > forbetodds[0][1]:
+        hodds = [fortunaodds[0][1], forbetodds[0][1], lvbetodds[0][1]]
+        dodds = [fortunaodds[0][2], forbetodds[0][2], lvbetodds[0][2]]
+        aodds = [fortunaodds[0][3], forbetodds[0][3], lvbetodds[0][3]]
+        hmax = hodds.index(max(hodds))
+        dmax = dodds.index(max(dodds))
+        amax = aodds.index(max(aodds))
+        if hmax == 0:
             home = fortunaodds[0][1]
             hbookie = "Fortuna"
-        else:
+        if hmax == 1:
             home = forbetodds[0][1]
             hbookie = "Forbet"
-        if fortunaodds[0][2] > forbetodds[0][2]:
+        if hmax == 2:
+            home = lvbetodds[0][1]
+            hbookie = "Lvbet"
+        if dmax == 0:
             draw = fortunaodds[0][2]
             dbookie = "Fortuna"
-        else:
+        if dmax == 1:
             draw = forbetodds[0][2]
             dbookie = "Forbet"
-        if fortunaodds[0][3] > forbetodds[0][3]:
+        if dmax == 2:
+            draw = lvbetodds[0][2]
+            dbookie = "Lvbet"
+        if amax == 0:
             away = fortunaodds[0][3]
             abookie = "Fortuna"
-        else:
+        if amax == 1:
             away = forbetodds[0][3]
             abookie = "Forbet"
+        if amax == 2:
+            away = lvbetodds[0][3]
+            abookie = "Lvbet"
         m = (teams[0][1], teams[0][2], teams[0][3], home, hbookie, draw, dbookie, away, abookie)
         matches.append(m)
 

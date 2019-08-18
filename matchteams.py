@@ -8,8 +8,8 @@ c = conn.cursor()
 
 database.insert_all_teams()
 
-database.delete_matchedleagues_table()
-database.delete_matchedteams_table()
+#database.delete_matchedleagues_table()
+#database.delete_matchedteams_table()
 database.create_matchedleagues_table()
 database.create_matchedteams_table()
 
@@ -20,23 +20,22 @@ def matchleagues(bookie1, bookie2):
         league_matched = database.is_league_matched(bookie1, str(match[3]))
         if not league_matched:
             data = database.select_matches_from_league_with_date_and_team1(bookie2, match[0], match[2])
-            league2_matched = database.is_league_matched(bookie2, data[0][3])
-            if not league2_matched:
-                if len(data)>0:
+            if len(data) > 0:
+                league2_matched = database.is_league_matched(bookie2, data[0][3])
+                if not league2_matched:
                     database.insert_matched_leagues(match[3], match[4], data[0][3], data[0][4], bookie1, bookie2)
                     print(data)
                 else:
-                    data = database.select_matches_from_league_with_date_and_team2(bookie2, match[1], match[2])
-                    if len(data) > 0:
-                        database.insert_matched_leagues(match[3], match[4], data[0][3], data[0][4], bookie1, bookie2)
-                        print(data)
-            else:
-                if len(data)>0:
                     database.update_matched_leagues(match[3], match[4], bookie1, bookie2, data[0][3])
                     print(data)
-                else:
-                    data = database.select_matches_from_league_with_date_and_team2(bookie2, match[1], match[2])
-                    if len(data) > 0:
+            else:
+                data = database.select_matches_from_league_with_date_and_team2(bookie2, match[1], match[2])
+                if len(data) > 0:
+                    league2_matched = database.is_league_matched(bookie2, data[0][3])
+                    if not league2_matched:
+                        database.insert_matched_leagues(match[3], match[4], data[0][3], data[0][4], bookie1, bookie2)
+                        print(data)
+                    else:
                         database.update_matched_leagues(match[3], match[4], bookie1, bookie2, data[0][3])
                         print(data)
 
@@ -69,44 +68,58 @@ def matchteams(bookie1, bookie2):
                         fortunatwoid = database.get_team_id(bookie1, bookie1match[1])
                         forbetoneid = database.get_team_id(bookie2, bookie2match[0])
                         forbettwoid = database.get_team_id(bookie2, bookie2match[1])
-                        team1matched = database.is_team_matched(bookie1, fortunaoneid)
-                        team2matched = database.is_team_matched(bookie1, fortunatwoid)
+                        team1matched = database.is_team_matched(bookie2, forbetoneid)
+                        team2matched = database.is_team_matched(bookie2, forbettwoid)
                         if not team1matched and not team2matched:
                             database.insert_matched_teams(fortunaoneid, forbetoneid, bookie1match[0], bookie2match[0], bookie1, bookie2)
                             database.insert_matched_teams(fortunatwoid, forbettwoid, bookie1match[1], bookie2match[1], bookie1, bookie2)
                             print(bookie1match[0] + " " + bookie1match[1] + " " + bookie2match[0] + " " + bookie2match[1])
-                        if team1matched and not team2matched:
-                            database.update_matched_teams(forbetoneid, bookie2match[0],
-                                                          bookie2, bookie1, fortunaoneid)
+                        elif team1matched and not team2matched:
+                            database.update_matched_teams(fortunaoneid, bookie2match[0],
+                                                          bookie1, bookie2, forbetoneid)
                             database.insert_matched_teams(fortunatwoid, forbettwoid, bookie1match[1], bookie2match[1],
                                                           bookie1, bookie2)
                             print(
                                 bookie1match[0] + " " + bookie1match[1] + " " + bookie2match[0] + " " + bookie2match[1])
-                        if not team1matched and team2matched:
+                        elif not team1matched and team2matched:
                             database.insert_matched_teams(fortunaoneid, forbetoneid, bookie1match[0], bookie2match[0],
                                                           bookie1, bookie2)
-                            database.update_matched_teams(forbettwoid, bookie2match[1],
-                                                          bookie2, bookie1, fortunatwoid)
+                            database.update_matched_teams(fortunatwoid, bookie2match[1],
+                                                          bookie1, bookie1, forbettwoid)
                             print(
                                 bookie1match[0] + " " + bookie1match[1] + " " + bookie2match[0] + " " + bookie2match[1])
+                        else:
+                            database.update_matched_teams(fortunaoneid, bookie2match[0],
+                                                          bookie1, bookie2, forbetoneid)
+                            database.update_matched_teams(fortunatwoid, bookie2match[1],
+                                                         bookie1, bookie2, forbettwoid)
                         break
 
 
 def matchmatches(bookie1, bookie2):
-    database.delete_matched_matches_table()
+    #database.delete_matched_matches_table()
     database.create_matched_matches_table()
     matches = database.select_matches_from_bookie(bookie1)
     for match in matches:
         print(match)
-        teamonename = database.get_matched_team_name(bookie2, bookie1, str(match[1]))
-        teamtwoname = database.get_matched_team_name(bookie2, bookie1, str(match[2]))
-        c.execute('SELECT id FROM ' + bookie2 + '_matches WHERE date = "' + (match[3]) + '" AND (t1 = "' + str(teamonename) +
-                                                                      '" OR t2 = "' + str(teamtwoname) + '")')
+
+        c.execute('SELECT name' + bookie2 + ' FROM matched_teams WHERE name' + bookie1 + ' = "' + match[1] + '"')
+        teamone = c.fetchall()
+        c.execute('SELECT name' + bookie2 + ' FROM matched_teams WHERE name' + bookie1 + ' = "' + match[2] + '"')
+        teamtwo = c.fetchall()
+        c.execute('SELECT id FROM ' + bookie2 + '_matches WHERE date = "' + match[3] + '" AND (t1 = "' + teamone +
+                  '" OR t2 = "' + teamtwo + '"')
         data = c.fetchall()
-        print(data)
-        if len(data)>0:
-            c.execute('INSERT INTO matches (' + bookie1 + 'id, ' + bookie2 + 'id) VALUES (' + str(match[0]) + ', ' + str(data[0][0]) + ')')
-            conn.commit()
+        if len(data) > 0:
+            matchmatched = database.is_match_matched(bookie1, str(match[0]))
+            matchmatched2 = database.is_match_matched(bookie2, str(data[0][0]))
+            if matchmatched:
+                database.update_matched_match(bookie2, bookie1, str(data[0][0]), str(match[0]))
+            elif matchmatched2:
+                database.update_matched_match(bookie1, bookie2, str(match[0]), str(data[0][0]))
+            else:
+                    c.execute('INSERT INTO matches (id' + bookie1 + ', id' + bookie2 + ') VALUES (' + str(match[0]) + ', ' + str(data[0][0]) + ')')
+                    conn.commit()
 
         #TODO: IF fobetnamone or forbetnametwo = '' ale jedno z nich jest zmatchowane to zmatchuj ten drugi
 
@@ -115,7 +128,7 @@ def main(bookie1, bookie2):
     matchleagues(bookie1, bookie2)
     matchteams(bookie1, bookie2)
     matchmatches(bookie1, bookie2)
-    c.execute("SELECT " + bookie1 + "id, " + bookie2 + "id FROM matches")
+    c.execute("SELECT id" + bookie1 + ", id" + bookie2 + " FROM matches WHERE id" + bookie1 + " NOT NULL AND id" + bookie2 + " NOT NULL")
     matches = c.fetchall()
     for match in matches:
         c.execute('SELECT * FROM ' + bookie1 + '_matches WHERE id = "' + str(match[0]) + '"')
@@ -141,4 +154,4 @@ def main(bookie1, bookie2):
             print(team)
 
 
-main("Fortuna", "Forbet")
+main("Fortuna", "Lvbet")

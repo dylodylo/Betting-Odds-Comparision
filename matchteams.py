@@ -8,36 +8,47 @@ c = conn.cursor()
 
 database.insert_all_teams()
 
-#database.delete_matchedleagues_table()
-#database.delete_matchedteams_table()
+database.delete_matchedleagues_table()
+database.delete_matchedteams_table()
 database.create_matchedleagues_table()
 database.create_matchedteams_table()
 
 
+#WPISUJEMY B1 I EWENTAULNIE PRZYRÓWNUJEMY DO B2
 def matchleagues(bookie1, bookie2):
-    fortuna_matches = database.select_matches_from_league(bookie1)
-    for match in fortuna_matches:
-        league_matched = database.is_league_matched(bookie1, str(match[3]))
+    matches = database.select_matches_from_bookie_with_date_league(bookie1)
+    for match in matches:
+        teamone = match[0]
+        teamtwo = match[1]
+        date = match[2]
+        leagueid = match[3]
+        site = match[4]
+        league_matched = database.is_league_matched(bookie1, str(leagueid))
         if not league_matched:
-            data = database.select_matches_from_league_with_date_and_team1(bookie2, match[0], match[2])
+            data = database.select_matches_from_league_with_date_and_team1(bookie2, teamone, date)
+            data2 = database.select_matches_from_league_with_date_and_team2(bookie2, teamtwo, date)
             if len(data) > 0:
-                league2_matched = database.is_league_matched(bookie2, data[0][3])
+                b2leagueid = data[0][3]
+                b2site = data[0][4]
+                league2_matched = database.is_league_matched(bookie2,  b2leagueid)
                 if not league2_matched:
-                    database.insert_matched_leagues(match[3], match[4], data[0][3], data[0][4], bookie1, bookie2)
+                    database.insert_matched_leagues(leagueid, site,  b2leagueid, b2site, bookie1, bookie2)
                     print(data)
                 else:
-                    database.update_matched_leagues(match[3], match[4], bookie1, bookie2, data[0][3])
+                    database.update_matched_leagues(leagueid, site, bookie1, bookie2,  b2leagueid)
                     print(data)
-            else:
-                data = database.select_matches_from_league_with_date_and_team2(bookie2, match[1], match[2])
-                if len(data) > 0:
-                    league2_matched = database.is_league_matched(bookie2, data[0][3])
+            elif len(data2) > 0:
+                    b2leagueid = data2[0][3]
+                    b2site = data2[0][4]
+                    league2_matched = database.is_league_matched(bookie2,  b2leagueid)
                     if not league2_matched:
-                        database.insert_matched_leagues(match[3], match[4], data[0][3], data[0][4], bookie1, bookie2)
+                        database.insert_matched_leagues(leagueid, site,  b2leagueid, b2site, bookie1, bookie2)
                         print(data)
                     else:
-                        database.update_matched_leagues(match[3], match[4], bookie1, bookie2, data[0][3])
+                        database.update_matched_leagues(leagueid, site, bookie1, bookie2,  b2leagueid)
                         print(data)
+            #else:
+               # database.insert_matched_leagues(leagueid, site, '', '', bookie1, bookie2)
 
 
 def matchteams(bookie1, bookie2):
@@ -107,8 +118,8 @@ def matchmatches(bookie1, bookie2):
         teamone = c.fetchall()
         c.execute('SELECT name' + bookie2 + ' FROM matched_teams WHERE name' + bookie1 + ' = "' + match[2] + '"')
         teamtwo = c.fetchall()
-        c.execute('SELECT id FROM ' + bookie2 + '_matches WHERE date = "' + match[3] + '" AND (t1 = "' + teamone +
-                  '" OR t2 = "' + teamtwo + '"')
+        c.execute('SELECT id FROM ' + bookie2 + '_matches WHERE date = "' + match[3] + '" AND (t1 = "' + teamone[0] +
+                  '" OR t2 = "' + teamtwo[0] + '"')
         data = c.fetchall()
         if len(data) > 0:
             matchmatched = database.is_match_matched(bookie1, str(match[0]))
@@ -154,4 +165,4 @@ def main(bookie1, bookie2):
             print(team)
 
 
-main("Fortuna", "Lvbet")
+main("Fortuna", "Forbet")

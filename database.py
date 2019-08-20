@@ -248,7 +248,7 @@ def delete_matchedteams_table():
     c.execute("DROP TABLE IF EXISTS matched_teams")
 
 
-def select_matches_from_league(bookie):
+def select_matches_from_bookie_with_date_league(bookie):
     c.execute("SELECT t1, t2, date, league_id, site FROM " + bookie + "_matches AS fm INNER JOIN " + bookie +
               "_leagues AS fl ON fm.league_id = fl.id")
     data = c.fetchall()

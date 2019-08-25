@@ -272,11 +272,13 @@ def select_matches_from_league_with_date_and_team2(bookie, team2, date):
 def insert_matched_leagues(idFortuna, siteFortuna, idForbet, siteForbet, bookie1, bookie2):
     c.execute("INSERT INTO matched_leagues (id" + bookie1 + ", site" + bookie1 + ", id" + bookie2 + ", site" +
               bookie2 + ") VALUES (" + str(idFortuna) + ", '" + str(siteFortuna) + "', " + str(idForbet) +
-              ", '" + str(siteForbet) + "')")
+              ', "' + str(siteForbet) + '")')
     conn.commit()
 
 
+
 def update_matched_leagues(id, site, bookie1, bookie2, id2):
+    """id1 bookie1 - to wpisujemy, bookie2 id2 określają gdzie"""
     c.execute("UPDATE matched_leagues SET id" + bookie1 + " = " + str(id) + ", site" + bookie1 + " = '" + site +
               "' WHERE id" + bookie2 + " = " + str(id2))
     conn.commit()
@@ -309,7 +311,7 @@ def is_match_matched(bookie, match):
         return True
 
 
-def select_matches_from_matched_league(bookie, league):
+def select_matches_from_league(bookie, league):
     c.execute("SELECT t1, t2, date FROM " + bookie + "_matches WHERE league_id = " + league)
     data = c.fetchall()
     return data
@@ -334,8 +336,8 @@ def insert_matched_teams(id1, id2, name1, name2, bookie1, bookie2):
 
 
 def update_matched_teams(id, name, bookie1, bookie2, id2):
-    c.execute("UPDATE matched_teams SET id" + bookie1 + " = " + str(id) + ", name" + bookie1 + " = '" + name +
-              "' WHERE id" + bookie2 + " = " + str(id2))
+    c.execute("UPDATE matched_teams SET id" + bookie1 + " = " + str(id) + ", name" + bookie1 + ' = "' + name +
+              '" WHERE id' + bookie2 + " = " + str(id2))
     conn.commit()
 
 
@@ -369,3 +371,9 @@ def get_matched_team_name(bookiefrom, bookietocompare, name):
 def update_matched_match(bookie, bookie2, id, id2):
     c.execute('UPDATE matches SET id' + bookie + ' = ' + id + ' WHERE id' + bookie2 + ' = ' + id2)
     conn.commit()
+
+
+def select_from_matches_by_another_name(bookie1, bookie2, name):
+    c.execute('SELECT name' + bookie2 + ' FROM matched_teams WHERE name' + bookie1 + ' = "' + name + '"')
+    data = c.fetchall()
+    return data

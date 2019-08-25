@@ -32,23 +32,52 @@ def close_connection(exception):
 
 def index():
     cur = get_db().cursor()
-    cur.execute("SELECT * FROM matches WHERE idFortuna NOT NULL AND idForbet NOT NULL and idLvbet NOT NULL")
+    cur.execute("SELECT * FROM matches")
     res = cur.fetchall()
     fortunaid = []
     forbetid = []
     matches = []
-    cur.execute("SELECT * FROM Forbet_match_odds")
+    fortunaodds = [[0, 0, 0, 0]]
+    forbetodds = [[0, 0, 0, 0]]
+    lvbetodds = [(0, 0, 0, 0)]
     for match in res:
+        print(match)
         fortunaid.append(match[1])
         forbetid.append(match[2])
-        cur.execute("SELECT * FROM Fortuna_match_odds WHERE id = " + str(match[1]))
-        fortunaodds = cur.fetchall()
-        cur.execute("SELECT * FROM Forbet_match_odds WHERE id = " + str(match[2]))
-        forbetodds = cur.fetchall()
-        cur.execute("SELECT * FROM Lvbet_match_odds WHERE id = " + str(match[3]))
-        lvbetodds = cur.fetchall()
-        cur.execute("SELECT * FROM Fortuna_matches WHERE id = " + str(match[1]))
-        teams = cur.fetchall()
+        if match[1] is not None:
+            cur.execute("SELECT * FROM Fortuna_match_odds WHERE id = " + str(match[1]))
+            fortunaodds = cur.fetchall()
+        else:
+            fortunaodds = [[0, 0, 0, 0]]
+
+        if match[2] is not None:
+            cur.execute("SELECT * FROM Forbet_match_odds WHERE id = " + str(match[2]))
+            forbetodds = cur.fetchall()
+        else:
+            forbetodds = [[0, 0, 0, 0]]
+
+        if match[3] is not None:
+            cur.execute("SELECT * FROM Lvbet_match_odds WHERE id = " + str(match[3]))
+            lvbetodds = cur.fetchall()
+            if lvbetodds == []:
+                lvbetodds = [(0, 0, 0, 0)]
+        else:
+
+            lvbetodds = [(0, 0, 0, 0)]
+        if match[1] is not None:
+            cur.execute("SELECT * FROM Fortuna_matches WHERE id = " + str(match[1]))
+            teams = cur.fetchall()
+        elif match[2] is not None:
+            cur.execute("SELECT * FROM Forbet_matches WHERE id = " + str(match[2]))
+            teams = cur.fetchall()
+
+        else:
+            cur.execute("SELECT * FROM Lvbet_matches WHERE id = " + str(match[3]))
+            teams = cur.fetchall()
+
+        print(fortunaodds)
+        print(forbetodds)
+        print(lvbetodds)
         hodds = [fortunaodds[0][1], forbetodds[0][1], lvbetodds[0][1]]
         dodds = [fortunaodds[0][2], forbetodds[0][2], lvbetodds[0][2]]
         aodds = [fortunaodds[0][3], forbetodds[0][3], lvbetodds[0][3]]
@@ -82,9 +111,11 @@ def index():
         if amax == 2:
             away = lvbetodds[0][3]
             abookie = "Lvbet"
+
         m = (teams[0][1], teams[0][2], teams[0][3], home, hbookie, draw, dbookie, away, abookie)
         matches.append(m)
 
+    print(len(matches))
     return render_template("index.html", matches = matches)
 
 
